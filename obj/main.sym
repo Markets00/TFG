@@ -1,0 +1,85 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 1.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+    .__.$$$.=  2710 L   |     .__.ABS.=  0000 G   |     .__.CPU.=  0000 L
+    .__.H$L.=  0000 L   |     A_c_pitc=  0001     |     A_f_pitc=  0000 
+    A_in_out=  000E     |     A_volume=  0008     |     B_c_pitc=  0003 
+    B_f_pitc=  0002     |     B_in_out=  000F     |     B_volume=  0009 
+    C_c_pitc=  0005     |     C_f_pitc=  0004     |     C_volume=  000A 
+    Joy0_Dow=  0209     |     Joy0_Fir=  1009     |     Joy0_Fir=  2009 
+    Joy0_Fir=  4009     |     Joy0_Lef=  0409     |     Joy0_Rig=  0809 
+    Joy0_Up =  0109     |     Joy1_Dow=  0206     |     Joy1_Fir=  1006 
+    Joy1_Fir=  2006     |     Joy1_Fir=  4006     |     Joy1_Lef=  0406 
+    Joy1_Rig=  0806     |     Joy1_Up =  0106     |     Key_0   =  0104 
+    Key_1   =  0108     |     Key_2   =  0208     |     Key_3   =  0207 
+    Key_4   =  0107     |     Key_5   =  0206     |     Key_6   =  0106 
+    Key_7   =  0205     |     Key_8   =  0105     |     Key_9   =  0204 
+    Key_A   =  2008     |     Key_At  =  0403     |     Key_B   =  4006 
+    Key_Back=  4002     |     Key_C   =  4007     |     Key_Caps=  4008 
+    Key_Care=  0103     |     Key_Clos=  0802     |     Key_Clr =  0102 
+    Key_Colo=  2003     |     Key_Comm=  8004     |     Key_Cont=  8002 
+    Key_Copy=  0201     |     Key_Curs=  0400     |     Key_Curs=  0101 
+    Key_Curs=  0200     |     Key_Curs=  0100     |     Key_D   =  2007 
+    Key_Del =  8009     |     Key_Dot =  8003     |     Key_E   =  0407 
+    Key_Ente=  4000     |     Key_Esc =  0408     |     Key_F   =  2006 
+    Key_F0  =  8001     |     Key_F1  =  2001     |     Key_F2  =  4001 
+    Key_F3  =  2000     |     Key_F4  =  1002     |     Key_F5  =  1001 
+    Key_F6  =  1000     |     Key_F7  =  0401     |     Key_F8  =  0801 
+    Key_F9  =  0800     |     Key_FDot=  8000     |     Key_G   =  1006 
+    Key_H   =  1005     |     Key_Hyph=  0203     |     Key_I   =  0804 
+    Key_J   =  2005     |     Key_K   =  2004     |     Key_L   =  1004 
+    Key_M   =  4004     |     Key_N   =  4005     |     Key_O   =  0404 
+    Key_Open=  0202     |     Key_P   =  0803     |     Key_Q   =  0808 
+    Key_R   =  0406     |     Key_Retu=  0402     |     Key_S   =  1007 
+    Key_Semi=  1003     |     Key_Shif=  2002     |     Key_Slas=  4003 
+    Key_Spac=  8005     |     Key_T   =  0806     |     Key_Tab =  1008 
+    Key_U   =  0405     |     Key_V   =  8006     |     Key_W   =  0807 
+    Key_X   =  8007     |     Key_Y   =  0805     |     Key_Z   =  8008 
+    _A      =  000A     |     _As     =  000B     |     _B      =  000C 
+    _C      =  0001     |     _Cs     =  0002     |     _D      =  0003 
+    _Ds     =  0004     |     _E      =  0005     |     _F      =  0006 
+    _Fs     =  0007     |     _G      =  0008     |     _Gs     =  0009 
+  0 _cpct_ke   0000 GR  |   0 _main      0026 GR  |     ayctrl  =  FFFD 
+    aydata  =  BFFD     |   0 b_not_pr   02B4 R   |     c_envelo=  000C 
+  0 c_not_pr   0275 R   |     channel_=  0000     |     channel_=  000F 
+    channel_=  0001     |     channel_=  000F     |     channel_=  0002 
+    channel_=  000F     |     channel_=  0003     |   0 check_in   01FE GR
+  0 comma_no   031E R   |     cpct_isA   **** GX  |     cpct_isK   **** GX
+    cpct_sca   **** GX  |     cpct_set   **** GX  |     cpct_wai   **** GX
+  0 current_   000C R   |   0 current_   000B R   |   0 current_   000A R
+  0 current_   013D R   |   0 current_   013F R   |   0 d_not_pr   0260 R
+  0 dec_curr   0382 R   |   0 dec_limi   038E R   |   0 dot_not_   034A R
+    end_song=  0081     |     envelope=  000D     |   0 exit_cha   01BC R
+  0 exit_pla   0184 R   |     f_envelo=  000B     |   0 g_not_pr   029F R
+  0 get_fine   01DD GR  |   0 get_tune   01F0 R   |   0 h_not_pr   02C9 R
+  0 inc_curr   0370 R   |   0 inc_limi   037C R   |   0 init_PSG   01D5 R
+  0 initiali   003F R   |   0 is_chann   01A4 R   |   0 is_chann   01B0 R
+  0 j_not_pr   02F3 R   |   0 l_not_pr   0334 R   |   0 loop       002D R
+  0 m_not_pr   0308 R   |   0 minus_no   036A R   |     mixer_re=  0007 
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  0 musicHan   0030 GR  |   0 n_not_pr   02DE R   |     n_waits =  0006 
+    noise_pe=  0006     |   0 none_key   036B R   |   0 not_play   003B R
+    octave_l=  0000     |     octave_u=  0020     |   0 octaves_   01E8 R
+  0 play_end   017B R   |   0 play_fra   0148 GR  |   0 play_fra   0188 GR
+  0 play_not   0198 GR  |   0 play_sil   0172 R   |   0 play_sus   0178 R
+  0 player_n   0025 R   |   0 player_n   01BD GR  |     player_p=  0032 
+  0 plus_not   035A R   |   0 s_not_pr   0236 R   |   0 set_AY_r   0080 R
+  0 set_curr   036F R   |   0 set_song   0141 R   |   0 silence_   01CD R
+    silence_=  0080     |   0 song_1     0097 GR  |   0 song_2     00E0 GR
+    sustain_=  0082     |   0 tunes_ta   000D R   |   0 v_not_pr   028A R
+  0 x_not_pr   024B R   |   0 z_not_pr   0221 R
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 3.
+Hexadecimal [16-Bits]
+
+Area Table
+
+   0 _CODE      size  394   flags    0
+   1 _DATA      size    0   flags    0
+
