@@ -37,49 +37,45 @@ Symbol Table
     Key_Spac=  8005     |     Key_T   =  0806     |     Key_Tab =  1008 
     Key_U   =  0405     |     Key_V   =  8006     |     Key_W   =  0807 
     Key_X   =  8007     |     Key_Y   =  0805     |     Key_Z   =  8008 
-    _A      =  000A     |     _As     =  000B     |     _B      =  000C 
-    _C      =  0001     |     _Cs     =  0002     |     _D      =  0003 
-    _Ds     =  0004     |     _E      =  0005     |     _F      =  0006 
-    _Fs     =  0007     |     _G      =  0008     |     _Gs     =  0009 
+    _A      =  0009     |     _As     =  000A     |     _B      =  000B 
+    _C      =  0000     |     _Cs     =  0001     |     _D      =  0002 
+    _Ds     =  0003     |     _E      =  0004     |     _F      =  0005 
+    _Fs     =  0006     |     _G      =  0007     |     _Gs     =  0008 
   0 _cpct_ke   0000 GR  |   0 _main      0026 GR  |     ayctrl  =  FFFD 
-    aydata  =  BFFD     |   0 b_not_pr   02B4 R   |     c_envelo=  000C 
-  0 c_not_pr   0275 R   |     channel_=  0000     |     channel_=  000F 
-    channel_=  0001     |     channel_=  000F     |     channel_=  0002 
-    channel_=  000F     |     channel_=  0003     |   0 check_in   01FE GR
-  0 comma_no   031E R   |     cpct_isA   **** GX  |     cpct_isK   **** GX
-    cpct_sca   **** GX  |     cpct_set   **** GX  |     cpct_wai   **** GX
-  0 current_   000C R   |   0 current_   000B R   |   0 current_   000A R
-  0 current_   013D R   |   0 current_   013F R   |   0 d_not_pr   0260 R
-  0 dec_curr   0382 R   |   0 dec_limi   038E R   |   0 dot_not_   034A R
-    end_song=  0081     |     envelope=  000D     |   0 exit_cha   01BC R
-  0 exit_pla   0184 R   |     f_envelo=  000B     |   0 g_not_pr   029F R
-  0 get_fine   01DD GR  |   0 get_tune   01F0 R   |   0 h_not_pr   02C9 R
-  0 inc_curr   0370 R   |   0 inc_limi   037C R   |   0 init_PSG   01D5 R
-  0 initiali   003F R   |   0 is_chann   01A4 R   |   0 is_chann   01B0 R
-  0 j_not_pr   02F3 R   |   0 l_not_pr   0334 R   |   0 loop       002D R
-  0 m_not_pr   0308 R   |   0 minus_no   036A R   |     mixer_re=  0007 
+    aydata  =  BFFD     |     c_envelo=  000C     |     channel_=  0000 
+    channel_=  000F     |     channel_=  0001     |     channel_=  000F 
+    channel_=  0002     |     channel_=  000F     |     channel_=  0003 
+    cpct_isA   **** GX  |     cpct_isK   **** GX  |     cpct_sca   **** GX
+    cpct_set   **** GX  |     cpct_wai   **** GX  |   0 current_   000B R
+  0 current_   000A R   |   0 current_   0167 R   |   0 current_   0169 R
+    end_song=  0081     |     envelope=  000D     |   0 exit_cha   0277 R
+  0 exit_pla   0230 R   |     f_envelo=  000B     |   0 get_fine   0299 GR
+  0 get_tune   02AC GR  |   0 initiali   003F R   |   0 is_chann   025F R
+  0 is_chann   026B R   |   0 loop       002D R   |   0 mixer_co   0025 R
+    mixer_re=  0007     |   0 musicHan   0030 GR  |     n_waits =  0006 
+    noise_pe=  0006     |   0 not_play   003B R   |   0 not_play   018F R
+  0 not_play   0181 R   |   0 not_play   0197 R   |   0 not_rese   01D7 R
+  0 not_rese   01E7 R   |   0 not_rese   01F7 R   |   0 not_set_   01A7 R
+  0 not_set_   01B7 R   |   0 not_set_   01C7 R   |   0 not_set_   0218 R
+  0 octaves_   02A4 R   |   0 play_fra   0172 GR  |   0 play_fra   0234 R
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 Symbol Table
 
-  0 musicHan   0030 GR  |   0 n_not_pr   02DE R   |     n_waits =  0006 
-    noise_pe=  0006     |   0 none_key   036B R   |   0 not_play   003B R
-    octave_l=  0000     |     octave_u=  0020     |   0 octaves_   01E8 R
-  0 play_end   017B R   |   0 play_fra   0148 GR  |   0 play_fra   0188 GR
-  0 play_not   0198 GR  |   0 play_sil   0172 R   |   0 play_sus   0178 R
-  0 player_n   0025 R   |   0 player_n   01BD GR  |     player_p=  0032 
-  0 plus_not   035A R   |   0 s_not_pr   0236 R   |   0 set_AY_r   0080 R
-  0 set_curr   036F R   |   0 set_song   0141 R   |   0 silence_   01CD R
-    silence_=  0080     |   0 song_1     0097 GR  |   0 song_2     00E0 GR
-    sustain_=  0082     |   0 tunes_ta   000D R   |   0 v_not_pr   028A R
-  0 x_not_pr   024B R   |   0 z_not_pr   0221 R
+  0 play_fra   0243 GR  |   0 play_not   0253 GR  |   0 play_not   0278 GR
+  0 player_n   0024 R   |     player_p=  0028     |     reset_A_=  0086 
+    reset_B_=  0087     |     reset_C_=  0088     |   0 set_AY_r   0080 R
+    set_A_no=  0083     |     set_B_no=  0084     |     set_C_no=  0085 
+    set_enve=  0089     |   0 set_song   016B R   |   0 silence_   0288 R
+    silence_=  0080     |   0 song_1     0097 GR  |   0 song_2     00EC GR
+    sustain_=  0082     |   0 tunes_ta   000C GR  |   0 update_P   0290 R
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 3.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE      size  394   flags    0
+   0 _CODE      size  2BA   flags    0
    1 _DATA      size    0   flags    0
 

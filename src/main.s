@@ -24,34 +24,33 @@
 
 current_octave: 	.db #4
 current_noise:		.db #0
-current_A_volume:	.db #channel_A_volume
 
-.equ	_C,	#1
-.equ	_Cs,	#2
-.equ	_D,	#3
-.equ	_Ds,	#4
-.equ	_E,	#5
-.equ	_F,	#6
-.equ	_Fs,	#7
-.equ	_G,	#8
-.equ	_Gs,	#9
-.equ	_A,	#10
-.equ	_As,	#11
-.equ	_B,	#12
+.equ	_C,	#0
+.equ	_Cs,	#1
+.equ	_D,	#2
+.equ	_Ds,	#3
+.equ	_E,	#4
+.equ	_F,	#5
+.equ	_Fs,	#6
+.equ	_G,	#7
+.equ	_Gs,	#8
+.equ	_A,	#9
+.equ	_As,	#10
+.equ	_B,	#11
 
-tunes_table:
-	.dw #3822	;   C	-   1	;
-	.dw #3608	;   C#	-   2	;
-	.dw #3405	;   D	-   3	;
-	.dw #3214	;   D#	-   4	;
-	.dw #3034	;   E	-   5	;
-	.dw #2863	;   F	-   6	;
-	.dw #2703	;   F#	-   7	;
-	.dw #2551	;   G	-   8	;
-	.dw #2408	;   G#	-   9	;
-	.dw #2273	;   A	-   10	;
-	.dw #2145	;   A#	-   11	;
-	.dw #2025	;   B	-   12	;
+tunes_table::
+	.dw #3822	;   C	-   0	;
+	.dw #3608	;   C#	-   1	;
+	.dw #3405	;   D	-   2	;
+	.dw #3214	;   D#	-   3	;
+	.dw #3034	;   E	-   4	;
+	.dw #2863	;   F	-   5	;
+	.dw #2703	;   F#	-   6	;
+	.dw #2551	;   G	-   7	;
+	.dw #2408	;   G#	-   8	;
+	.dw #2273	;   A	-   9	;
+	.dw #2145	;   A#	-   10	;
+	.dw #2025	;   B	-   11	;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -73,8 +72,11 @@ tunes_table:
 .equ A_in_out_reg,		#14
 .equ B_in_out_reg,		#15
 
-.equ	player_period, 	#50
+.equ	player_period, 	#40
 player_n_interruptions: .db #player_period
+
+
+mixer_config:	.db #0b00111000
 
 ; FIRST TEST
 ; Input
@@ -155,9 +157,9 @@ initialize_player:
 	ld 	hl, #musicHandler
 	call 	cpct_setInterruptHandler_asm
 
-	call 	init_PSG_mixer
+	call 	update_PSG_mixer
 
-	ld	hl, #song_1
+	ld	hl, #song_2
 	call	set_song_pointer
 
 	ret
@@ -182,57 +184,59 @@ set_AY_register:
 
 	ret
 
-.equ silence_command, 	#0b10000000
-.equ end_song_command, 	#0b10000001
-.equ sustain_command, 	#0b10000010
-
 ;;			0	1	2	3	4	5	6	7	 8
 ;;		  A volume|A tune ID|A octv|B volume|B tune ID|B octv|C volume|C tune ID|C octv
-song_1::	.db 	#15,	#_C,	#4,	#0,	#_F,	#4,	#0,	#_G,	#4
+song_1::
+		.db 	#15,	#_C,	#4,	#0,	#_F,	#4,	#0,	#_G,	#4
 		.db 	#15,	#_C,	#4,	#12,	#_F,	#4,	#0,	#_G,	#4
 		.db 	#15,	#_C,	#4,	#0,	#_F,	#4,	#12,	#_G,	#4
-		; .db 	#silence_command
+		.db 	#silence_command
 		.db 	#15,	#_F,	#4,	#0,	#_A,	#4,	#0,	#_C,	#5
 		.db 	#15,	#_F,	#4,	#12,	#_A,	#4,	#0,	#_C,	#5
 		.db 	#15,	#_F,	#4,	#0,	#_A,	#4,	#12,	#_C,	#5
-		; .db 	#silence_command
+		.db 	#silence_command
 		.db 	#15,	#_G,	#4,	#0,	#_B,	#4,	#0,	#_D,	#5
 		.db 	#15,	#_G,	#4,	#12,	#_B,	#4,	#0,	#_D,	#5
 		.db 	#15,	#_G,	#4,	#0,	#_B,	#4,	#12,	#_D,	#5
-		; .db 	#silence_command
+		.db 	#silence_command
 		.db	#end_song_command
-
-
-;;;;;;;;;;; SONG 1 HACE UN RUIDO AL FINAL ;;;;;;;;;;;;;;;;
-
 
 ;;			0	1	2	3	4	5	6	7	 8
 ;;		  A volume|A tune ID|A octv|B volume|B tune ID|B octv|C volume|C tune ID|C octv
-song_2::	.db 	#15,	#_C,	#3,	#0,	#_F,	#4,	#0,	#_G,	#4
+song_2::
+		.db	#set_B_noise_command,	#31
+		.db	#set_envelope_command,	#0,	#0x01,	#0xFF
+		.db 	#15,	#_B,	#2,	#16,	#_B,	#4,	#0,	#_G,	#4
 		.db	#sustain_command
 		.db	#silence_command
 		.db 	#silence_command
-		.db 	#15,	#_C,	#4,	#0,	#_F,	#4,	#0,	#_G,	#4
+		.db	#set_envelope_command,	#8,	#0x00,	#0xFF
+		.db 	#15,	#_B,	#3,	#16,	#_B,	#5,	#0,	#_G,	#4
 		.db	#sustain_command
 		.db	#sustain_command
-		.db 	#15,	#_G,	#3,	#0,	#_B,	#4,	#0,	#_D,	#5
-		.db 	#15,	#_C,	#3,	#0,	#_B,	#4,	#0,	#_D,	#5
-		.db	#sustain_command
-		.db	#silence_command
-		.db 	#silence_command
-		.db 	#15,	#_G,	#2,	#0,	#_B,	#4,	#0,	#_D,	#5
+		.db 	#15,	#_Fs,	#3,	#0,	#_B,	#2,	#0,	#_D,	#5
+		.db	#set_envelope_command,	#10,	#0x01,	#0xFF
+		.db 	#15,	#_B,	#2,	#16,	#_B,	#2,	#0,	#_D,	#5
 		.db	#sustain_command
 		.db	#silence_command
 		.db 	#silence_command
-		.db 	#15,	#_As,	#2,	#0,	#_B,	#4,	#0,	#_D,	#5
+		.db	#set_envelope_command,	#11,	#0x01,	#0xFF
+		.db 	#15,	#_Fs,	#2,	#16,	#_B,	#3,	#0,	#_D,	#5
 		.db	#sustain_command
 		.db	#silence_command
 		.db 	#silence_command
-		.db 	#15,	#_C,	#3,	#0,	#_B,	#4,	#0,	#_D,	#5
+		.db	#set_envelope_command,	#15,	#0x01,	#0xFF
+		.db 	#15,	#_A,	#2,	#16,	#_B,	#4,	#0,	#_D,	#5
 		.db	#sustain_command
 		.db	#silence_command
 		.db 	#silence_command
-		.db 	#15,	#_Ds,	#3,	#0,	#_B,	#4,	#0,	#_D,	#5
+		.db	#set_envelope_command,	#14,	#0x01,	#0xFF
+		.db 	#15,	#_B,	#2,	#16,	#_B,	#1,	#0,	#_D,	#5
+		.db	#sustain_command
+		.db	#silence_command
+		.db 	#silence_command
+		.db	#set_envelope_command,	#12,	#0x01,	#0xFF
+		.db 	#15,	#_D,	#3,	#16,	#_B,	#3,	#0,	#_D,	#5
 		.db	#sustain_command
 		.db	#sustain_command
 		.db	#sustain_command
@@ -240,6 +244,18 @@ song_2::	.db 	#15,	#_C,	#3,	#0,	#_F,	#4,	#0,	#_G,	#4
 
 current_song_init_pointer: 	.dw #0
 current_song_pointer: 		.dw #0
+
+
+.equ silence_command, 		#0b10000000
+.equ end_song_command, 		#0b10000001
+.equ sustain_command, 		#0b10000010
+.equ set_A_noise_command,	#0b10000011
+.equ set_B_noise_command,	#0b10000100
+.equ set_C_noise_command,	#0b10000101
+.equ reset_A_noise_command,	#0b10000110
+.equ reset_B_noise_command,	#0b10000111
+.equ reset_C_noise_command,	#0b10001000
+.equ set_envelope_command,	#0b10001001
 
 ;; HL => song pointer
 set_song_pointer:
@@ -252,49 +268,169 @@ play_frame::
 
 	ld	a, (hl)
 	cp 	#silence_command
-	jr	z, play_silence
+	jr	nz, not_play_silence
+	;;
+	;;	PLAY SILENCE
+		call 	silence_PSG_mixer
+		inc 	hl
+		jp	exit_play_frame
 
+	not_play_silence:
 		cp 	#end_song_command
-		jr	z, play_end
-			cp 	#sustain_command
-			jr	z, play_sustain
-				call 	init_PSG_mixer
-				;; play A tune
-				ld	c, #A_volume_reg	; C <= A volume register ID
-				ld	d, #channel_A		; D <= channel A ID
-				call	play_frame_tune
+		jr	nz, not_play_end
+		;;
+		;;	PLAY END
+			ld 	hl, (current_song_init_pointer)
+			ld	(current_song_pointer), hl
+			call 	play_frame
+			ret
 
-				;; play B tune
-				ld	c, #B_volume_reg	; C <= B volume register ID
-				ld	d, #channel_B		; D <= channel B ID
-				call	play_frame_tune
+	not_play_end:
+		cp 	#sustain_command
+		jr	nz, not_play_sustain
+		;;
+		;;	PLAY SUSTAIN
+			inc 	hl
+			jp	exit_play_frame
 
-				;; play C tune
-				ld	c, #C_volume_reg	; C <= C volume register ID
-				ld	d, #channel_C		; D <= channel C ID
-				call	play_frame_tune
+	not_play_sustain:
+		cp 	#set_A_noise_command
+		jr	nz, not_set_A_noise
+		;;
+		;;	SET A NOISE
+			ld	a, (mixer_config)	;
+			res	3, a			;
+			ld	(mixer_config), a	; enable A channel noise
+			call	play_frame_noise_period
+			ret
 
-				jr	exit_play_frame
+	not_set_A_noise:
+		cp 	#set_B_noise_command
+		jr	nz, not_set_B_noise
+		;;
+		;;	SET B NOISE
+			ld	a, (mixer_config)	;
+			res	4, a			;
+			ld	(mixer_config), a	; enable B channel noise
+			call	play_frame_noise_period
+			ret
 
-			play_silence:
-				call 	silence_PSG_mixer
-				inc 	hl
-				jr	exit_play_frame
+	not_set_B_noise:
+		cp 	#set_C_noise_command
+		jr	nz, not_set_C_noise
+		;;
+		;;	SET C NOISE
+			ld	a, (mixer_config)	;
+			res	5, a			;
+			ld	(mixer_config), a	; enable C channel noise
+			call	play_frame_noise_period
+			ret
 
-			play_sustain:
-				inc 	hl
-				jr	exit_play_frame
+	not_set_C_noise:
+		cp 	#reset_A_noise_command
+		jr	nz, not_reset_A_noise
+		;;
+		;;	RESET A NOISE
+			ld	a, (mixer_config)	;
+			set	3, a			;
+			ld	(mixer_config), a	; disable A channel noise
+			inc 	hl
 
-			play_end:
-				ld 	hl, (current_song_init_pointer)
-				ld	(current_song_pointer), hl
-				call 	play_frame
-				;ret
+			ld	(current_song_pointer), hl
+			call 	play_frame
+			ret
 
+	not_reset_A_noise:
+		cp 	#reset_B_noise_command
+		jr	nz, not_reset_B_noise
+		;;
+		;;	RESET B NOISE
+			ld	a, (mixer_config)	;
+			set	4, a			;
+			ld	(mixer_config), a	; disable B channel noise
+			inc 	hl
+
+			ld	(current_song_pointer), hl
+			call 	play_frame
+			ret
+
+	not_reset_B_noise:
+		cp 	#reset_C_noise_command
+		jr	nz, not_reset_C_noise
+		;;
+		;;	RESET B NOISE
+			ld	a, (mixer_config)	;
+			set	5, a			;
+			ld	(mixer_config), a	; disable C channel noise
+			inc 	hl
+
+			ld	(current_song_pointer), hl
+			call 	play_frame
+			ret
+
+	not_reset_C_noise:
+		cp 	#set_envelope_command
+		jr	nz, not_set_envelope
+		;;
+		;;	SET ENVELOPE
+			inc 	hl
+
+			ld	a, (hl)			; A <= envelope shape ID
+			ld	c, #envelope_shape_reg
+			call	set_AY_register
+			inc 	hl
+
+			ld	a, (hl)			; A <= envelope coarse period
+			ld	c, #c_envelope_period_reg
+			call	set_AY_register
+			inc 	hl
+
+			ld	a, (hl)			; A <= envelope fine period
+			ld	c, #f_envelope_period_reg
+			call	set_AY_register
+			inc 	hl
+
+			ld	(current_song_pointer), hl
+			call 	play_frame
+			ret
+
+	not_set_envelope:
+	;;
+	;;	PLAY TUNES LINE
+		call 	update_PSG_mixer
+		;; play A tune
+		ld	c, #A_volume_reg	; C <= A volume register ID
+		ld	d, #channel_A		; D <= channel A ID
+		call	play_frame_tune
+
+		;; play B tune
+		ld	c, #B_volume_reg	; C <= B volume register ID
+		ld	d, #channel_B		; D <= channel B ID
+		call	play_frame_tune
+
+		;; play C tune
+		ld	c, #C_volume_reg	; C <= C volume register ID
+		ld	d, #channel_C		; D <= channel C ID
+		call	play_frame_tune
+	
 	exit_play_frame:
-
 	ld	(current_song_pointer), hl
 
+	ret
+
+;; HL => current song pointer
+;;
+;; HL keeps updated here
+;; DESTROYS: AF, BC, DE, HL
+play_frame_noise_period:
+	inc 	hl
+	ld	a, (hl)			; A <= noise period value
+	ld	c, #noise_period_reg
+	call	set_AY_register
+	inc 	hl
+
+	ld	(current_song_pointer), hl
+	call 	play_frame
 	ret
 
 ;; C => AY register ID
@@ -330,7 +466,7 @@ play_note::
 		; CHANNEL A
 		ld	e, #A_f_pitch_reg
 		ld	d, #A_c_pitch_reg
-		call	player_note_channel
+		call	play_note_channel
 
 		ret
 	is_channel_B:
@@ -339,7 +475,7 @@ play_note::
 			; CHANNEL B
 			ld	e, #B_f_pitch_reg
 			ld	d, #B_c_pitch_reg
-			call	player_note_channel
+			call	play_note_channel
 
 			ret
 	is_channel_C:
@@ -348,7 +484,7 @@ play_note::
 			; CHANNEL C
 			ld	e, #C_f_pitch_reg
 			ld	d, #C_c_pitch_reg
-			call	player_note_channel
+			call	play_note_channel
 
 			ret
 
@@ -359,7 +495,7 @@ play_note::
 ;; C => octave
 ;; D => coarse pitch register ID
 ;; E => fine pitch register ID
-player_note_channel::
+play_note_channel::
 	push 	de
 	call	get_fine_pitch	; HL <= fine pitch value
 	pop	de
@@ -379,8 +515,8 @@ silence_PSG_mixer:
 	call	set_AY_register
 	ret
 
-init_PSG_mixer:
-	ld	a, #0b00111000
+update_PSG_mixer:
+	ld	a, (mixer_config)
 	ld	c, #mixer_reg
 	call	set_AY_register
 	ret
@@ -411,7 +547,7 @@ get_fine_pitch::
 ;; HL <= tune value
 ;;
 ;; DESTROYS AF, DE, HL
-get_tune:
+get_tune::
 	ld	hl, #tunes_table	; HL <= Tunes vector address
 	ld	de, #0			;
 	ld	e, a			; DE <= A
@@ -425,225 +561,6 @@ get_tune:
 	ex 	de, hl 			; HL <= tune value
 
 	ret
-
-check_input::
-	call 	cpct_scanKeyboard_asm
-
-	call 	cpct_isAnyKeyPressed_asm
-	cp 	#0
-	jp	z, none_key_pressed
-		;; any key is pressed
-		call init_PSG_mixer
-		ld 	hl, #Key_Z			;; HL = Keycode
-		call 	cpct_isKeyPressed_asm 		;; A = True/False
-		cp 	#0 				;; A == 0?
-		jr 	z, z_not_pressed
-			ld	a, (current_octave)
-			ld	c, a
-			ld	a, #channel_A
-			ld	b, # _C
-			call 	play_note
-		z_not_pressed:
-			ld 	hl, #Key_S			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, s_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _Cs
-				call 	play_note
-		s_not_pressed:
-			ld 	hl, #Key_X			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, x_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _D
-				call 	play_note
-		x_not_pressed:
-			ld 	hl, #Key_D			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, d_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _Ds
-				call 	play_note
-		d_not_pressed:
-			ld 	hl, #Key_C			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, c_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _E
-				call 	play_note
-		c_not_pressed:
-			ld 	hl, #Key_V			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, v_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _F
-				call 	play_note
-		v_not_pressed:
-			ld 	hl, #Key_G			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, g_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _Fs
-				call 	play_note
-		g_not_pressed:
-			ld 	hl, #Key_B			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, b_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _G
-				call 	play_note
-		b_not_pressed:
-			ld 	hl, #Key_H			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, h_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _Gs
-				call 	play_note
-		h_not_pressed:
-			ld 	hl, #Key_N			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, n_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _A
-				call 	play_note
-		n_not_pressed:
-			ld 	hl, #Key_J			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, j_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _As
-				call 	play_note
-		j_not_pressed:
-			ld 	hl, #Key_M			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, m_not_pressed
-				ld	a, (current_octave)
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _B
-				call 	play_note
-		m_not_pressed:
-			ld 	hl, #Key_Comma			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, comma_not_pressed
-				ld	a, (current_octave)
-				inc 	a
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _C
-				call 	play_note
-		comma_not_pressed:
-			ld 	hl, #Key_L			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, l_not_pressed
-				ld	a, (current_octave)
-				inc 	a
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _Cs
-				call 	play_note
-		l_not_pressed:
-			ld 	hl, #Key_Dot			;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, dot_not_pressed
-				ld	a, (current_octave)
-				inc 	a
-				ld	c, a
-				ld	a, #channel_A
-				ld	b, # _D
-				call 	play_note
-
-		dot_not_pressed:
-			ld 	hl, #Key_CursorUp		;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, plus_not_pressed
-				call silence_PSG_mixer
-				call 	inc_current_octave
-
-		plus_not_pressed:
-			ld 	hl, #Key_CursorDown		;; HL = Keycode
-			call 	cpct_isKeyPressed_asm 		;; A = True/False
-			cp 	#0 				;; A == 0?
-			jr 	z, minus_not_pressed
-				call 	silence_PSG_mixer
-				call 	dec_current_octave
-
-		minus_not_pressed:
-
-	ret
-	none_key_pressed:
-		; silence
-		call silence_PSG_mixer
-	ret
-
-; 0-9
-.equ octave_lower_limit, 	#0
-.equ octave_upper_limit, 	#32
-
-
-set_current_octave:
-
-	ret
-
-inc_current_octave:
-	ld	a, (current_octave)
-	cp	#octave_upper_limit
-	jr	z, inc_limit_exceed
-		inc	a
-		ld	(current_octave), a
-		ret
-	inc_limit_exceed:
-		ld	a, #octave_upper_limit
-		ld	(current_octave), a
-	ret
-
-dec_current_octave:
-	ld	a, (current_octave)
-	cp	#octave_lower_limit
-	jr	z, dec_limit_exceed
-		dec	a
-		ld	(current_octave), a
-		ret
-	dec_limit_exceed:
-		ld	a, #octave_lower_limit
-		ld	(current_octave), a
-	ret
-
 
 ; doc : https://github.com/AugustoRuiz/WYZTracker/blob/master/AsmPlayer/WYZPROPLAY47c_CPC.ASM
 ; doc : http://www.cpcwiki.eu/imgs/d/dc/Ay3-891x.pdf
