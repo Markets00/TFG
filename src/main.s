@@ -126,34 +126,6 @@ musicHandler::
 	ret
 
 initialize_player:
-	ld	a, #channel_A_volume
-	ld	c, #A_volume_reg
-	call 	set_AY_register
-
-	ld	a, #channel_B_volume
-	ld	c, #B_volume_reg
-	call 	set_AY_register
-
-	ld	a, #channel_C_volume
-	ld	c, #C_volume_reg
-	call 	set_AY_register
-
-	ld 	a, #10
-	ld	c, #envelope_shape_reg
-	call 	set_AY_register
-
-	ld 	a, #0x03
-	ld	c, #c_envelope_period_reg
-	call 	set_AY_register
-
-	ld 	a, #0xFF
-	ld	c, #f_envelope_period_reg
-	call 	set_AY_register
-
-	ld 	a, #0
-	ld	c, #noise_period_reg
-	call 	set_AY_register
-
 	ld 	hl, #musicHandler
 	call 	cpct_setInterruptHandler_asm
 
@@ -358,7 +330,7 @@ play_frame::
 		cp 	#reset_C_noise_command
 		jr	nz, not_reset_C_noise
 		;;
-		;;	RESET B NOISE
+		;;	RESET C NOISE
 			ld	a, (mixer_config)	;
 			set	5, a			;
 			ld	(mixer_config), a	; disable C channel noise
@@ -552,10 +524,10 @@ get_tune::
 	ld	de, #0			;
 	ld	e, a			; DE <= A
 	add 	hl, de			;
-	add 	hl, de			; HL <= vector adress + tuneIDx2
+	add 	hl, de			; HL <= vector address + tuneIDx2
 
 	ld	e, (hl)			; 
-	inc 	l			; 
+	inc 	hl			; 
 	ld	d, (hl)			; DE <= tune value
 
 	ex 	de, hl 			; HL <= tune value
