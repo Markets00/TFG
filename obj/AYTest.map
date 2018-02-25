@@ -1,0 +1,78 @@
+ASxxxx Linker V03.00 + NoICE + sdld,  page 1.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+.  .ABS.                            00000000    00000000 =           0. bytes (ABS,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00000000  .__.ABS.                           cpct_keyboard
+     00000000  l__DATA                         
+     000003B6  l__CODE                         
+     00004000  s__CODE                         
+     000043B6  s__DATA                         
+
+ASxxxx Linker V03.00 + NoICE + sdld,  page 2.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_CODE                               00004000    000003B6 =         950. bytes (REL,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00004000  _cpct_keyboardStatusBuffer         cpct_keyboard
+     0000400C  tunes_table                        cpct_keyboard
+     000040CE  _main                              cpct_keyboard
+     000040D8  musicHandler                       cpct_keyboard
+     0000410E  song_1                             cpct_keyboard
+     00004163  song_2                             cpct_keyboard
+     000041E9  play_frame                         cpct_keyboard
+     000042C6  play_frame_tune                    cpct_keyboard
+     000042D6  play_note                          cpct_keyboard
+     000042FB  play_note_channel                  cpct_keyboard
+     0000431C  get_fine_pitch                     cpct_keyboard
+     0000432F  get_tune                           cpct_keyboard
+     0000433B  _cpct_setInterruptHandler          cpct_firmware
+     0000433B  cpct_setInterruptHandler_asm       cpct_firmware
+     0000434C  cpct_safeInterruptHandlerHook      cpct_firmware
+     00004363  _cpct_isKeyPressed                 cpct_keyboard
+     00004363  cpct_isKeyPressed_asm              cpct_keyboard
+     0000436F  _cpct_isAnyKeyPressed              cpct_keyboard
+     0000436F  cpct_isAnyKeyPressed_asm           cpct_keyboard
+     0000437C  _cpct_waitVSYNC                    cpct_video
+     0000437C  cpct_waitVSYNC_asm                 cpct_video
+     00004384  _cpct_mode_rom_status              cpct_firmware
+     00004385  _cpct_scanKeyboard                 cpct_keyboard
+     00004385  cpct_scanKeyboard_asm              cpct_keyboard
+ASxxxx Linker V03.00 + NoICE + sdld,  page 3.
+
+Files Linked                              [ module(s) ]
+
+obj/main.rel                              [ cpct_keyboard ]
+
+
+Libraries Linked                          [ object file ]
+
+/home/markets/git/cpctelera/cpctelera/cpctelera.lib
+                                          [ cpct_setInterruptHandler.rel ]
+/home/markets/git/cpctelera/cpctelera/cpctelera.lib
+                                          [ cpct_isKeyPressed.rel ]
+/home/markets/git/cpctelera/cpctelera/cpctelera.lib
+                                          [ cpct_isAnyKeyPressed.rel ]
+/home/markets/git/cpctelera/cpctelera/cpctelera.lib
+                                          [ cpct_waitVSYNC.rel ]
+/home/markets/git/cpctelera/cpctelera/cpctelera.lib
+                                          [ cpc_mode_rom_status.rel ]
+/home/markets/git/cpctelera/cpctelera/cpctelera.lib
+                                          [ cpct_scanKeyboard.rel ]
+
+ASxxxx Linker V03.00 + NoICE + sdld,  page 4.
+
+User Base Address Definitions
+
+_CODE = 0x4000
+_DATA = 0x0000
+
+

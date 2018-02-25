@@ -39,6 +39,7 @@ current_noise:		.db #0
 .equ	_B,	#11
 
 tunes_table::
+;; OCTAVE -3,
 	.dw #3822	;   C	-   0	;
 	.dw #3608	;   C#	-   1	;
 	.dw #3405	;   D	-   2	;
@@ -51,7 +52,20 @@ tunes_table::
 	.dw #2273	;   A	-   9	;
 	.dw #2145	;   A#	-   10	;
 	.dw #2025	;   B	-   11	;
-
+;; OCTAVE -2,
+	.dw #1911, #1804, #1703, #1607, #1517, #1432, #1351, #1276, #1204, #1136, #1073, #1012
+;; OCTAVE -1,
+	.dw #956, #902, #851, #804, #758, #716, #676, #638, #602, #568, #536, #506
+;; OCTAVE 0
+	.dw #478, #451, #426, #402, #379, #358, #338, #319, #301, #284, #268, #253
+;; OCTAVE 1
+	.dw #239, #225, #213, #201, #190, #179, #169, #159, #150, #142, #134, #127
+;; OCTAVE 2
+	.dw #119, #113, #106, #100, #95, #89, #84, #80, #75, #71, #67, #63
+;; OCTAVE 3
+	.dw #60, #56, #53, #50, #47, #45, #42, #40, #38, #36, #34, #32
+;; OCTAVE 4
+	.dw #30, #28, #27, #25, #24, #22, #21, #20, #19, #18, #17, #16
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; AY-3-8910/2 registers ID table
@@ -228,6 +242,30 @@ current_song_pointer: 		.dw #0
 .equ reset_B_noise_command,	#0b10000111
 .equ reset_C_noise_command,	#0b10001000
 .equ set_envelope_command,	#0b10001001
+
+;; Switch
+;;
+;;ld a, (hl)
+;;add a
+;;add a
+;;ld (jump_from), a
+;;jump_from = .+1
+;;jr 00 
+;;jp comando1
+;;jp comando2
+;;jp comando3
+;;jp comando4
+;;....
+;;
+;;comando1:
+;;	....
+;;
+;;comando2:
+;;	....
+;;
+;;comando3:
+;;	....
+
 
 ;; HL => song pointer
 set_song_pointer:
@@ -493,46 +531,44 @@ update_PSG_mixer:
 	call	set_AY_register
 	ret
 
+
+
 ;; B => tune ID
 ;; C => octave
 ;; 
 ;; HL <= fine pitch value
 ;; DESTROYS: AF, BC, DE
 get_fine_pitch::
-	ld	a, b		; A <= tune ID
-	call 	get_tune	; HL <= tune value
-
+	ld	hl, #tunes_table	; HL <= Tunes vector address
 	ld	a, c
 	cp	#0
-	jr	nz, octaves_loop
+	jr	nz, iterate_octaves
 		; octave is 0
-		ld	a, h	; A <= tune value integer part
-		ret
+		jr exit_octaves
+	iterate_octaves:
+		ld	de, #24
 	octaves_loop:
-		srl 	h			;
-		rr 	l			; HL/2
+		add 	hl, de			; HL <= HL + 32 (next octave frequencies address)
 		dec 	c
-		jr	nz, octaves_loop	; EXIT IF C-- == ZERO
-	ret
+		jr	nz, octaves_loop
 
-;; A => tune ID
-;; HL <= tune value
-;;
-;; DESTROYS AF, DE, HL
-get_tune::
-	ld	hl, #tunes_table	; HL <= Tunes vector address
-	ld	de, #0			;
-	ld	e, a			; DE <= A
-	add 	hl, de			;
-	add 	hl, de			; HL <= vector address + tuneIDx2
+	exit_octaves:
+		ld	e, b		; E <= tune ID
 
-	ld	e, (hl)			; 
-	inc 	hl			; 
-	ld	d, (hl)			; DE <= tune value
+		ld	d, #0		;
+		add 	hl, de		;
+		add 	hl, de		; HL <= vector address + tuneIDx2
 
-	ex 	de, hl 			; HL <= tune value
+		ld	e, (hl)		; 
+		inc 	hl		; 
+		ld	d, (hl)		; DE <= tune value
+
+		ex 	de, hl 		; HL <= tune value
 
 	ret
+
+
+; UI: dear imgui
 
 ; doc : https://github.com/AugustoRuiz/WYZTracker/blob/master/AsmPlayer/WYZPROPLAY47c_CPC.ASM
 ; doc : http://www.cpcwiki.eu/imgs/d/dc/Ay3-891x.pdf
