@@ -187,42 +187,42 @@ song_1::
 		.db 	#silence_command
 		.db	#end_song_command
 
-;;			0	1	2	3	4	5	6	7	 8
-;;		  A volume|A tune ID|A octv|B volume|B tune ID|B octv|C volume|C tune ID|C octv
+;;						0	1	2	3	4	5	6	7	 8
+;;					  A volume|A tune ID|A octv|B volume|B tune ID|B octv|C volume|C tune ID|C octv
 song_2::
 		.db	#set_B_noise_command,	#31
 		.db	#set_envelope_command,	#0,	#0x01,	#0xFF
-		.db 	#15,	#_B,	#2,	#16,	#_B,	#4,	#0,	#_G,	#4
+		.db 	#read_line_command,	#15,	#_B,	#2,	#16,	#_B,	#4,	#0,	#_G,	#4
 		.db	#sustain_command
 		.db	#silence_command
 		.db 	#silence_command
 		.db	#set_envelope_command,	#8,	#0x00,	#0xFF
-		.db 	#15,	#_B,	#3,	#16,	#_B,	#5,	#0,	#_G,	#4
+		.db 	#read_line_command,	#15,	#_B,	#3,	#16,	#_B,	#5,	#0,	#_G,	#4
 		.db	#sustain_command
 		.db	#sustain_command
-		.db 	#15,	#_Fs,	#3,	#0,	#_B,	#2,	#0,	#_D,	#5
+		.db 	#read_line_command,	#15,	#_Fs,	#3,	#0,	#_B,	#2,	#0,	#_D,	#5
 		.db	#set_envelope_command,	#10,	#0x01,	#0xFF
-		.db 	#15,	#_B,	#2,	#16,	#_B,	#2,	#0,	#_D,	#5
+		.db 	#read_line_command,	#15,	#_B,	#2,	#16,	#_B,	#2,	#0,	#_D,	#5
 		.db	#sustain_command
 		.db	#silence_command
 		.db 	#silence_command
 		.db	#set_envelope_command,	#11,	#0x01,	#0xFF
-		.db 	#15,	#_Fs,	#2,	#16,	#_B,	#3,	#0,	#_D,	#5
+		.db 	#read_line_command,	#15,	#_Fs,	#2,	#16,	#_B,	#3,	#0,	#_D,	#5
 		.db	#sustain_command
 		.db	#silence_command
 		.db 	#silence_command
 		.db	#set_envelope_command,	#15,	#0x01,	#0xFF
-		.db 	#15,	#_A,	#2,	#16,	#_B,	#4,	#0,	#_D,	#5
+		.db 	#read_line_command,	#15,	#_A,	#2,	#16,	#_B,	#4,	#0,	#_D,	#5
 		.db	#sustain_command
 		.db	#silence_command
 		.db 	#silence_command
 		.db	#set_envelope_command,	#14,	#0x01,	#0xFF
-		.db 	#15,	#_B,	#2,	#16,	#_B,	#1,	#0,	#_D,	#5
+		.db 	#read_line_command,	#15,	#_B,	#2,	#16,	#_B,	#1,	#0,	#_D,	#5
 		.db	#sustain_command
 		.db	#silence_command
 		.db 	#silence_command
 		.db	#set_envelope_command,	#12,	#0x01,	#0xFF
-		.db 	#15,	#_D,	#3,	#16,	#_B,	#3,	#0,	#_D,	#5
+		.db 	#read_line_command,	#15,	#_D,	#3,	#16,	#_B,	#3,	#0,	#_D,	#5
 		.db	#sustain_command
 		.db	#sustain_command
 		.db	#sustain_command
@@ -232,16 +232,17 @@ current_song_init_pointer: 	.dw #0
 current_song_pointer: 		.dw #0
 
 
-.equ silence_command, 		#0b10000000
-.equ end_song_command, 		#0b10000001
-.equ sustain_command, 		#0b10000010
-.equ set_A_noise_command,	#0b10000011
-.equ set_B_noise_command,	#0b10000100
-.equ set_C_noise_command,	#0b10000101
-.equ reset_A_noise_command,	#0b10000110
-.equ reset_B_noise_command,	#0b10000111
-.equ reset_C_noise_command,	#0b10001000
-.equ set_envelope_command,	#0b10001001
+.equ silence_command, 		#0
+.equ end_song_command, 		#1
+.equ sustain_command, 		#2
+.equ set_A_noise_command,	#3
+.equ set_B_noise_command,	#4
+.equ set_C_noise_command,	#5
+.equ reset_A_noise_command,	#6
+.equ reset_B_noise_command,	#7
+.equ reset_C_noise_command,	#8
+.equ set_envelope_command,	#9
+.equ read_line_command,		#10
 
 ;; Switch
 ;;
@@ -276,137 +277,129 @@ set_song_pointer:
 play_frame::
 	ld	hl, (current_song_pointer)
 
-	ld	a, (hl)
-	cp 	#silence_command
-	jr	nz, not_play_silence
-	;;
+	ld 	a, (hl)
+	ld	b, a
+	add 	b
+	add 	b
+	ld 	(jump_from), a
+	jump_from = .+1
+	jr silence_code
+
+	jp silence_code		; +0
+	jp end_song_code 	; +3
+	jp sustain_code		; +6
+	jp set_A_noise_code	; +9
+	jp set_B_noise_code	; +12
+	jp set_C_noise_code	; +15
+	jp reset_A_noise_code	; +18
+	jp reset_B_noise_code	; +21
+	jp reset_C_noise_code	; +24
+	jp set_envelope_code	; +27
+	jp read_tunes_code	; +30
+
+
+	silence_code:
 	;;	PLAY SILENCE
 		call 	silence_PSG_mixer
 		inc 	hl
 		jp	exit_play_frame
 
-	not_play_silence:
-		cp 	#end_song_command
-		jr	nz, not_play_end
-		;;
-		;;	PLAY END
-			ld 	hl, (current_song_init_pointer)
-			ld	(current_song_pointer), hl
-			call 	play_frame
-			ret
+	end_song_code:
+	;;	PLAY END
+		ld 	hl, (current_song_init_pointer)
+		ld	(current_song_pointer), hl
+		call 	play_frame
+		ret
 
-	not_play_end:
-		cp 	#sustain_command
-		jr	nz, not_play_sustain
-		;;
-		;;	PLAY SUSTAIN
-			inc 	hl
-			jp	exit_play_frame
+	sustain_code:
+	;;	PLAY SUSTAIN
+		inc 	hl
+		jp	exit_play_frame
 
-	not_play_sustain:
-		cp 	#set_A_noise_command
-		jr	nz, not_set_A_noise
-		;;
-		;;	SET A NOISE
-			ld	a, (mixer_config)	;
-			res	3, a			;
-			ld	(mixer_config), a	; enable A channel noise
-			call	play_frame_noise_period
-			ret
+	set_A_noise_code:
+	;;	SET A NOISE
+		ld	a, (mixer_config)	;
+		res	3, a			;
+		ld	(mixer_config), a	; enable A channel noise
+		call	play_frame_noise_period
+		ret
 
-	not_set_A_noise:
-		cp 	#set_B_noise_command
-		jr	nz, not_set_B_noise
-		;;
-		;;	SET B NOISE
-			ld	a, (mixer_config)	;
-			res	4, a			;
-			ld	(mixer_config), a	; enable B channel noise
-			call	play_frame_noise_period
-			ret
+	set_B_noise_code:
+	;;	SET B NOISE
+		ld	a, (mixer_config)	;
+		res	4, a			;
+		ld	(mixer_config), a	; enable B channel noise
+		call	play_frame_noise_period
+		ret
 
-	not_set_B_noise:
-		cp 	#set_C_noise_command
-		jr	nz, not_set_C_noise
-		;;
-		;;	SET C NOISE
-			ld	a, (mixer_config)	;
-			res	5, a			;
-			ld	(mixer_config), a	; enable C channel noise
-			call	play_frame_noise_period
-			ret
+	set_C_noise_code:
+	;;	SET C NOISE
+		ld	a, (mixer_config)	;
+		res	5, a			;
+		ld	(mixer_config), a	; enable C channel noise
+		call	play_frame_noise_period
+		ret
 
-	not_set_C_noise:
-		cp 	#reset_A_noise_command
-		jr	nz, not_reset_A_noise
-		;;
-		;;	RESET A NOISE
-			ld	a, (mixer_config)	;
-			set	3, a			;
-			ld	(mixer_config), a	; disable A channel noise
-			inc 	hl
+	reset_A_noise_code:
+	;;	RESET A NOISE
+		ld	a, (mixer_config)	;
+		set	3, a			;
+		ld	(mixer_config), a	; disable A channel noise
+		inc 	hl
 
-			ld	(current_song_pointer), hl
-			call 	play_frame
-			ret
+		ld	(current_song_pointer), hl
+		call 	play_frame
+		ret
 
-	not_reset_A_noise:
-		cp 	#reset_B_noise_command
-		jr	nz, not_reset_B_noise
-		;;
-		;;	RESET B NOISE
-			ld	a, (mixer_config)	;
-			set	4, a			;
-			ld	(mixer_config), a	; disable B channel noise
-			inc 	hl
+	reset_B_noise_code:
+	;;	RESET B NOISE
+		ld	a, (mixer_config)	;
+		set	4, a			;
+		ld	(mixer_config), a	; disable B channel noise
+		inc 	hl
 
-			ld	(current_song_pointer), hl
-			call 	play_frame
-			ret
+		ld	(current_song_pointer), hl
+		call 	play_frame
+		ret
 
-	not_reset_B_noise:
-		cp 	#reset_C_noise_command
-		jr	nz, not_reset_C_noise
-		;;
-		;;	RESET C NOISE
-			ld	a, (mixer_config)	;
-			set	5, a			;
-			ld	(mixer_config), a	; disable C channel noise
-			inc 	hl
+	reset_C_noise_code:
+	;;	RESET C NOISE
+		ld	a, (mixer_config)	;
+		set	5, a			;
+		ld	(mixer_config), a	; disable C channel noise
+		inc 	hl
 
-			ld	(current_song_pointer), hl
-			call 	play_frame
-			ret
+		ld	(current_song_pointer), hl
+		call 	play_frame
+		ret
 
-	not_reset_C_noise:
-		cp 	#set_envelope_command
-		jr	nz, not_set_envelope
-		;;
-		;;	SET ENVELOPE
-			inc 	hl
+	set_envelope_code:
+	;;	SET ENVELOPE
+		inc 	hl
 
-			ld	a, (hl)			; A <= envelope shape ID
-			ld	c, #envelope_shape_reg
-			call	set_AY_register
-			inc 	hl
+		ld	a, (hl)			; A <= envelope shape ID
+		ld	c, #envelope_shape_reg
+		call	set_AY_register
+		inc 	hl
 
-			ld	a, (hl)			; A <= envelope coarse period
-			ld	c, #c_envelope_period_reg
-			call	set_AY_register
-			inc 	hl
+		ld	a, (hl)			; A <= envelope coarse period
+		ld	c, #c_envelope_period_reg
+		call	set_AY_register
+		inc 	hl
 
-			ld	a, (hl)			; A <= envelope fine period
-			ld	c, #f_envelope_period_reg
-			call	set_AY_register
-			inc 	hl
+		ld	a, (hl)			; A <= envelope fine period
+		ld	c, #f_envelope_period_reg
+		call	set_AY_register
+		inc 	hl
 
-			ld	(current_song_pointer), hl
-			call 	play_frame
-			ret
+		ld	(current_song_pointer), hl
+		call 	play_frame
+		ret
 
-	not_set_envelope:
-	;;
+	read_tunes_code:
 	;;	PLAY TUNES LINE
+		inc 	hl
+
 		call 	update_PSG_mixer
 		;; play A tune
 		ld	c, #A_volume_reg	; C <= A volume register ID

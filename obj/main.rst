@@ -315,7 +315,7 @@ Hexadecimal [16-Bits]
    40DB 3D            [ 4]  132 	dec 	a
    40DC 20 05         [12]  133 	jr 	nz, not_play
                             134 		;; n_interruptions == 0
-   40DE CD E9 41      [17]  135 		call 	play_frame
+   40DE CD F1 41      [17]  135 		call 	play_frame
    40E1 3E 28         [ 7]  136 		ld 	a, #player_period
                             137 
    40E3                     138 	not_play:
@@ -324,9 +324,9 @@ Hexadecimal [16-Bits]
                             141 
    40E7                     142 initialize_player:
    40E7 21 D8 40      [10]  143 	ld 	hl, #musicHandler
-   40EA CD 3B 43      [17]  144 	call 	cpct_setInterruptHandler_asm
+   40EA CD 41 43      [17]  144 	call 	cpct_setInterruptHandler_asm
                             145 
-   40ED CD 13 43      [17]  146 	call 	update_PSG_mixer
+   40ED CD 1D 43      [17]  146 	call 	update_PSG_mixer
                             147 
    40F0 21 63 41      [10]  148 	ld	hl, #song_2
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 8.
@@ -334,7 +334,7 @@ Hexadecimal [16-Bits]
 
 
 
-   40F3 CD E2 41      [17]  149 	call	set_song_pointer
+   40F3 CD EA 41      [17]  149 	call	set_song_pointer
                             150 
    40F6 C9            [10]  151 	ret
                             152 
@@ -367,547 +367,536 @@ Hexadecimal [16-Bits]
         00 07 04
    4120 0F 00 04 00 05 04   178 		.db 	#15,	#_C,	#4,	#0,	#_F,	#4,	#12,	#_G,	#4
         0C 07 04
-   4129 80                  179 		.db 	#silence_command
+   4129 00                  179 		.db 	#silence_command
    412A 0F 05 04 00 09 04   180 		.db 	#15,	#_F,	#4,	#0,	#_A,	#4,	#0,	#_C,	#5
         00 00 05
    4133 0F 05 04 0C 09 04   181 		.db 	#15,	#_F,	#4,	#12,	#_A,	#4,	#0,	#_C,	#5
         00 00 05
    413C 0F 05 04 00 09 04   182 		.db 	#15,	#_F,	#4,	#0,	#_A,	#4,	#12,	#_C,	#5
         0C 00 05
-   4145 80                  183 		.db 	#silence_command
+   4145 00                  183 		.db 	#silence_command
    4146 0F 07 04 00 0B 04   184 		.db 	#15,	#_G,	#4,	#0,	#_B,	#4,	#0,	#_D,	#5
         00 02 05
    414F 0F 07 04 0C 0B 04   185 		.db 	#15,	#_G,	#4,	#12,	#_B,	#4,	#0,	#_D,	#5
         00 02 05
    4158 0F 07 04 00 0B 04   186 		.db 	#15,	#_G,	#4,	#0,	#_B,	#4,	#12,	#_D,	#5
         0C 02 05
-   4161 80                  187 		.db 	#silence_command
-   4162 81                  188 		.db	#end_song_command
+   4161 00                  187 		.db 	#silence_command
+   4162 01                  188 		.db	#end_song_command
                             189 
-                            190 ;;			0	1	2	3	4	5	6	7	 8
-                            191 ;;		  A volume|A tune ID|A octv|B volume|B tune ID|B octv|C volume|C tune ID|C octv
+                            190 ;;						0	1	2	3	4	5	6	7	 8
+                            191 ;;					  A volume|A tune ID|A octv|B volume|B tune ID|B octv|C volume|C tune ID|C octv
    4163                     192 song_2::
-   4163 84 1F               193 		.db	#set_B_noise_command,	#31
-   4165 89 00 01 FF         194 		.db	#set_envelope_command,	#0,	#0x01,	#0xFF
+   4163 04 1F               193 		.db	#set_B_noise_command,	#31
+   4165 09 00 01 FF         194 		.db	#set_envelope_command,	#0,	#0x01,	#0xFF
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 9.
 Hexadecimal [16-Bits]
 
 
 
-   4169 0F 0B 02 10 0B 04   195 		.db 	#15,	#_B,	#2,	#16,	#_B,	#4,	#0,	#_G,	#4
-        00 07 04
-   4172 82                  196 		.db	#sustain_command
-   4173 80                  197 		.db	#silence_command
-   4174 80                  198 		.db 	#silence_command
-   4175 89 08 00 FF         199 		.db	#set_envelope_command,	#8,	#0x00,	#0xFF
-   4179 0F 0B 03 10 0B 05   200 		.db 	#15,	#_B,	#3,	#16,	#_B,	#5,	#0,	#_G,	#4
-        00 07 04
-   4182 82                  201 		.db	#sustain_command
-   4183 82                  202 		.db	#sustain_command
-   4184 0F 06 03 00 0B 02   203 		.db 	#15,	#_Fs,	#3,	#0,	#_B,	#2,	#0,	#_D,	#5
-        00 02 05
-   418D 89 0A 01 FF         204 		.db	#set_envelope_command,	#10,	#0x01,	#0xFF
-   4191 0F 0B 02 10 0B 02   205 		.db 	#15,	#_B,	#2,	#16,	#_B,	#2,	#0,	#_D,	#5
-        00 02 05
-   419A 82                  206 		.db	#sustain_command
-   419B 80                  207 		.db	#silence_command
-   419C 80                  208 		.db 	#silence_command
-   419D 89 0B 01 FF         209 		.db	#set_envelope_command,	#11,	#0x01,	#0xFF
-   41A1 0F 06 02 10 0B 03   210 		.db 	#15,	#_Fs,	#2,	#16,	#_B,	#3,	#0,	#_D,	#5
-        00 02 05
-   41AA 82                  211 		.db	#sustain_command
-   41AB 80                  212 		.db	#silence_command
-   41AC 80                  213 		.db 	#silence_command
-   41AD 89 0F 01 FF         214 		.db	#set_envelope_command,	#15,	#0x01,	#0xFF
-   41B1 0F 09 02 10 0B 04   215 		.db 	#15,	#_A,	#2,	#16,	#_B,	#4,	#0,	#_D,	#5
-        00 02 05
-   41BA 82                  216 		.db	#sustain_command
-   41BB 80                  217 		.db	#silence_command
-   41BC 80                  218 		.db 	#silence_command
-   41BD 89 0E 01 FF         219 		.db	#set_envelope_command,	#14,	#0x01,	#0xFF
-   41C1 0F 0B 02 10 0B 01   220 		.db 	#15,	#_B,	#2,	#16,	#_B,	#1,	#0,	#_D,	#5
-        00 02 05
-   41CA 82                  221 		.db	#sustain_command
-   41CB 80                  222 		.db	#silence_command
-   41CC 80                  223 		.db 	#silence_command
-   41CD 89 0C 01 FF         224 		.db	#set_envelope_command,	#12,	#0x01,	#0xFF
-   41D1 0F 02 03 10 0B 03   225 		.db 	#15,	#_D,	#3,	#16,	#_B,	#3,	#0,	#_D,	#5
-        00 02 05
-   41DA 82                  226 		.db	#sustain_command
-   41DB 82                  227 		.db	#sustain_command
-   41DC 82                  228 		.db	#sustain_command
-   41DD 81                  229 		.db	#end_song_command
+   4169 0A 0F 0B 02 10 0B   195 		.db 	#read_line_command,	#15,	#_B,	#2,	#16,	#_B,	#4,	#0,	#_G,	#4
+        04 00 07 04
+   4173 02                  196 		.db	#sustain_command
+   4174 00                  197 		.db	#silence_command
+   4175 00                  198 		.db 	#silence_command
+   4176 09 08 00 FF         199 		.db	#set_envelope_command,	#8,	#0x00,	#0xFF
+   417A 0A 0F 0B 03 10 0B   200 		.db 	#read_line_command,	#15,	#_B,	#3,	#16,	#_B,	#5,	#0,	#_G,	#4
+        05 00 07 04
+   4184 02                  201 		.db	#sustain_command
+   4185 02                  202 		.db	#sustain_command
+   4186 0A 0F 06 03 00 0B   203 		.db 	#read_line_command,	#15,	#_Fs,	#3,	#0,	#_B,	#2,	#0,	#_D,	#5
+        02 00 02 05
+   4190 09 0A 01 FF         204 		.db	#set_envelope_command,	#10,	#0x01,	#0xFF
+   4194 0A 0F 0B 02 10 0B   205 		.db 	#read_line_command,	#15,	#_B,	#2,	#16,	#_B,	#2,	#0,	#_D,	#5
+        02 00 02 05
+   419E 02                  206 		.db	#sustain_command
+   419F 00                  207 		.db	#silence_command
+   41A0 00                  208 		.db 	#silence_command
+   41A1 09 0B 01 FF         209 		.db	#set_envelope_command,	#11,	#0x01,	#0xFF
+   41A5 0A 0F 06 02 10 0B   210 		.db 	#read_line_command,	#15,	#_Fs,	#2,	#16,	#_B,	#3,	#0,	#_D,	#5
+        03 00 02 05
+   41AF 02                  211 		.db	#sustain_command
+   41B0 00                  212 		.db	#silence_command
+   41B1 00                  213 		.db 	#silence_command
+   41B2 09 0F 01 FF         214 		.db	#set_envelope_command,	#15,	#0x01,	#0xFF
+   41B6 0A 0F 09 02 10 0B   215 		.db 	#read_line_command,	#15,	#_A,	#2,	#16,	#_B,	#4,	#0,	#_D,	#5
+        04 00 02 05
+   41C0 02                  216 		.db	#sustain_command
+   41C1 00                  217 		.db	#silence_command
+   41C2 00                  218 		.db 	#silence_command
+   41C3 09 0E 01 FF         219 		.db	#set_envelope_command,	#14,	#0x01,	#0xFF
+   41C7 0A 0F 0B 02 10 0B   220 		.db 	#read_line_command,	#15,	#_B,	#2,	#16,	#_B,	#1,	#0,	#_D,	#5
+        01 00 02 05
+   41D1 02                  221 		.db	#sustain_command
+   41D2 00                  222 		.db	#silence_command
+   41D3 00                  223 		.db 	#silence_command
+   41D4 09 0C 01 FF         224 		.db	#set_envelope_command,	#12,	#0x01,	#0xFF
+   41D8 0A 0F 02 03 10 0B   225 		.db 	#read_line_command,	#15,	#_D,	#3,	#16,	#_B,	#3,	#0,	#_D,	#5
+        03 00 02 05
+   41E2 02                  226 		.db	#sustain_command
+   41E3 02                  227 		.db	#sustain_command
+   41E4 02                  228 		.db	#sustain_command
+   41E5 01                  229 		.db	#end_song_command
                             230 
-   41DE 00 00               231 current_song_init_pointer: 	.dw #0
-   41E0 00 00               232 current_song_pointer: 		.dw #0
+   41E6 00 00               231 current_song_init_pointer: 	.dw #0
+   41E8 00 00               232 current_song_pointer: 		.dw #0
                             233 
                             234 
-                     0080   235 .equ silence_command, 		#0b10000000
-                     0081   236 .equ end_song_command, 		#0b10000001
-                     0082   237 .equ sustain_command, 		#0b10000010
-                     0083   238 .equ set_A_noise_command,	#0b10000011
-                     0084   239 .equ set_B_noise_command,	#0b10000100
-                     0085   240 .equ set_C_noise_command,	#0b10000101
-                     0086   241 .equ reset_A_noise_command,	#0b10000110
+                     0000   235 .equ silence_command, 		#0
+                     0001   236 .equ end_song_command, 		#1
+                     0002   237 .equ sustain_command, 		#2
+                     0003   238 .equ set_A_noise_command,	#3
+                     0004   239 .equ set_B_noise_command,	#4
+                     0005   240 .equ set_C_noise_command,	#5
+                     0006   241 .equ reset_A_noise_command,	#6
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 10.
 Hexadecimal [16-Bits]
 
 
 
-                     0087   242 .equ reset_B_noise_command,	#0b10000111
-                     0088   243 .equ reset_C_noise_command,	#0b10001000
-                     0089   244 .equ set_envelope_command,	#0b10001001
-                            245 
-                            246 ;; Switch
-                            247 ;;
-                            248 ;;ld a, (hl)
-                            249 ;;add a
+                     0007   242 .equ reset_B_noise_command,	#7
+                     0008   243 .equ reset_C_noise_command,	#8
+                     0009   244 .equ set_envelope_command,	#9
+                     000A   245 .equ read_line_command,		#10
+                            246 
+                            247 ;; Switch
+                            248 ;;
+                            249 ;;ld a, (hl)
                             250 ;;add a
-                            251 ;;ld (jump_from), a
-                            252 ;;jump_from = .+1
-                            253 ;;jr 00 
-                            254 ;;jp comando1
-                            255 ;;jp comando2
-                            256 ;;jp comando3
-                            257 ;;jp comando4
-                            258 ;;....
-                            259 ;;
-                            260 ;;comando1:
-                            261 ;;	....
-                            262 ;;
-                            263 ;;comando2:
-                            264 ;;	....
-                            265 ;;
-                            266 ;;comando3:
-                            267 ;;	....
-                            268 
+                            251 ;;add a
+                            252 ;;ld (jump_from), a
+                            253 ;;jump_from = .+1
+                            254 ;;jr 00 
+                            255 ;;jp comando1
+                            256 ;;jp comando2
+                            257 ;;jp comando3
+                            258 ;;jp comando4
+                            259 ;;....
+                            260 ;;
+                            261 ;;comando1:
+                            262 ;;	....
+                            263 ;;
+                            264 ;;comando2:
+                            265 ;;	....
+                            266 ;;
+                            267 ;;comando3:
+                            268 ;;	....
                             269 
-                            270 ;; HL => song pointer
-   41E2                     271 set_song_pointer:
-   41E2 22 DE 41      [16]  272 	ld	(current_song_init_pointer), hl
-   41E5 22 E0 41      [16]  273 	ld	(current_song_pointer), hl
-   41E8 C9            [10]  274 	ret
-                            275 
-   41E9                     276 play_frame::
-   41E9 2A E0 41      [16]  277 	ld	hl, (current_song_pointer)
-                            278 
-   41EC 7E            [ 7]  279 	ld	a, (hl)
-   41ED FE 80         [ 7]  280 	cp 	#silence_command
-   41EF 20 07         [12]  281 	jr	nz, not_play_silence
-                            282 	;;
-                            283 	;;	PLAY SILENCE
-   41F1 CD 0B 43      [17]  284 		call 	silence_PSG_mixer
-   41F4 23            [ 6]  285 		inc 	hl
-   41F5 C3 B3 42      [10]  286 		jp	exit_play_frame
+                            270 
+                            271 ;; HL => song pointer
+   41EA                     272 set_song_pointer:
+   41EA 22 E6 41      [16]  273 	ld	(current_song_init_pointer), hl
+   41ED 22 E8 41      [16]  274 	ld	(current_song_pointer), hl
+   41F0 C9            [10]  275 	ret
+                            276 
+   41F1                     277 play_frame::
+   41F1 2A E8 41      [16]  278 	ld	hl, (current_song_pointer)
+                            279 
+   41F4 7E            [ 7]  280 	ld 	a, (hl)
+   41F5 47            [ 4]  281 	ld	b, a
+   41F6 80            [ 4]  282 	add 	b
+   41F7 80            [ 4]  283 	add 	b
+   41F8 32 FC 41      [13]  284 	ld 	(jump_from), a
+                     01FC   285 	jump_from = .+1
+   41FB 18 21         [12]  286 	jr silence_code
                             287 
-   41F8                     288 	not_play_silence:
-   41F8 FE 81         [ 7]  289 		cp 	#end_song_command
-   41FA 20 0A         [12]  290 		jr	nz, not_play_end
-                            291 		;;
-                            292 		;;	PLAY END
-   41FC 2A DE 41      [16]  293 			ld 	hl, (current_song_init_pointer)
-   41FF 22 E0 41      [16]  294 			ld	(current_song_pointer), hl
-   4202 CD E9 41      [17]  295 			call 	play_frame
-   4205 C9            [10]  296 			ret
+   41FD C3 1E 42      [10]  288 	jp silence_code		; +0
+   4200 C3 25 42      [10]  289 	jp end_song_code 	; +3
+   4203 C3 2F 42      [10]  290 	jp sustain_code		; +6
+   4206 C3 33 42      [10]  291 	jp set_A_noise_code	; +9
+   4209 C3 3F 42      [10]  292 	jp set_B_noise_code	; +12
+   420C C3 4B 42      [10]  293 	jp set_C_noise_code	; +15
+   420F C3 57 42      [10]  294 	jp reset_A_noise_code	; +18
+   4212 C3 67 42      [10]  295 	jp reset_B_noise_code	; +21
+   4215 C3 77 42      [10]  296 	jp reset_C_noise_code	; +24
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 11.
 Hexadecimal [16-Bits]
 
 
 
-                            297 
-   4206                     298 	not_play_end:
-   4206 FE 82         [ 7]  299 		cp 	#sustain_command
-   4208 20 04         [12]  300 		jr	nz, not_play_sustain
-                            301 		;;
-                            302 		;;	PLAY SUSTAIN
-   420A 23            [ 6]  303 			inc 	hl
-   420B C3 B3 42      [10]  304 			jp	exit_play_frame
-                            305 
-   420E                     306 	not_play_sustain:
-   420E FE 83         [ 7]  307 		cp 	#set_A_noise_command
-   4210 20 0C         [12]  308 		jr	nz, not_set_A_noise
-                            309 		;;
-                            310 		;;	SET A NOISE
-   4212 3A CD 40      [13]  311 			ld	a, (mixer_config)	;
-   4215 CB 9F         [ 8]  312 			res	3, a			;
-   4217 32 CD 40      [13]  313 			ld	(mixer_config), a	; enable A channel noise
-   421A CD B7 42      [17]  314 			call	play_frame_noise_period
-   421D C9            [10]  315 			ret
-                            316 
-   421E                     317 	not_set_A_noise:
-   421E FE 84         [ 7]  318 		cp 	#set_B_noise_command
-   4220 20 0C         [12]  319 		jr	nz, not_set_B_noise
-                            320 		;;
-                            321 		;;	SET B NOISE
-   4222 3A CD 40      [13]  322 			ld	a, (mixer_config)	;
-   4225 CB A7         [ 8]  323 			res	4, a			;
-   4227 32 CD 40      [13]  324 			ld	(mixer_config), a	; enable B channel noise
-   422A CD B7 42      [17]  325 			call	play_frame_noise_period
-   422D C9            [10]  326 			ret
-                            327 
-   422E                     328 	not_set_B_noise:
-   422E FE 85         [ 7]  329 		cp 	#set_C_noise_command
-   4230 20 0C         [12]  330 		jr	nz, not_set_C_noise
-                            331 		;;
-                            332 		;;	SET C NOISE
-   4232 3A CD 40      [13]  333 			ld	a, (mixer_config)	;
-   4235 CB AF         [ 8]  334 			res	5, a			;
-   4237 32 CD 40      [13]  335 			ld	(mixer_config), a	; enable C channel noise
-   423A CD B7 42      [17]  336 			call	play_frame_noise_period
-   423D C9            [10]  337 			ret
-                            338 
-   423E                     339 	not_set_C_noise:
-   423E FE 86         [ 7]  340 		cp 	#reset_A_noise_command
-   4240 20 10         [12]  341 		jr	nz, not_reset_A_noise
-                            342 		;;
-                            343 		;;	RESET A NOISE
-   4242 3A CD 40      [13]  344 			ld	a, (mixer_config)	;
-   4245 CB DF         [ 8]  345 			set	3, a			;
-   4247 32 CD 40      [13]  346 			ld	(mixer_config), a	; disable A channel noise
-   424A 23            [ 6]  347 			inc 	hl
-                            348 
-   424B 22 E0 41      [16]  349 			ld	(current_song_pointer), hl
-   424E CD E9 41      [17]  350 			call 	play_frame
-   4251 C9            [10]  351 			ret
+   4218 C3 87 42      [10]  297 	jp set_envelope_code	; +27
+   421B C3 A4 42      [10]  298 	jp read_tunes_code	; +30
+                            299 
+                            300 
+   421E                     301 	silence_code:
+                            302 	;;	PLAY SILENCE
+   421E CD 15 43      [17]  303 		call 	silence_PSG_mixer
+   4221 23            [ 6]  304 		inc 	hl
+   4222 C3 BD 42      [10]  305 		jp	exit_play_frame
+                            306 
+   4225                     307 	end_song_code:
+                            308 	;;	PLAY END
+   4225 2A E6 41      [16]  309 		ld 	hl, (current_song_init_pointer)
+   4228 22 E8 41      [16]  310 		ld	(current_song_pointer), hl
+   422B CD F1 41      [17]  311 		call 	play_frame
+   422E C9            [10]  312 		ret
+                            313 
+   422F                     314 	sustain_code:
+                            315 	;;	PLAY SUSTAIN
+   422F 23            [ 6]  316 		inc 	hl
+   4230 C3 BD 42      [10]  317 		jp	exit_play_frame
+                            318 
+   4233                     319 	set_A_noise_code:
+                            320 	;;	SET A NOISE
+   4233 3A CD 40      [13]  321 		ld	a, (mixer_config)	;
+   4236 CB 9F         [ 8]  322 		res	3, a			;
+   4238 32 CD 40      [13]  323 		ld	(mixer_config), a	; enable A channel noise
+   423B CD C1 42      [17]  324 		call	play_frame_noise_period
+   423E C9            [10]  325 		ret
+                            326 
+   423F                     327 	set_B_noise_code:
+                            328 	;;	SET B NOISE
+   423F 3A CD 40      [13]  329 		ld	a, (mixer_config)	;
+   4242 CB A7         [ 8]  330 		res	4, a			;
+   4244 32 CD 40      [13]  331 		ld	(mixer_config), a	; enable B channel noise
+   4247 CD C1 42      [17]  332 		call	play_frame_noise_period
+   424A C9            [10]  333 		ret
+                            334 
+   424B                     335 	set_C_noise_code:
+                            336 	;;	SET C NOISE
+   424B 3A CD 40      [13]  337 		ld	a, (mixer_config)	;
+   424E CB AF         [ 8]  338 		res	5, a			;
+   4250 32 CD 40      [13]  339 		ld	(mixer_config), a	; enable C channel noise
+   4253 CD C1 42      [17]  340 		call	play_frame_noise_period
+   4256 C9            [10]  341 		ret
+                            342 
+   4257                     343 	reset_A_noise_code:
+                            344 	;;	RESET A NOISE
+   4257 3A CD 40      [13]  345 		ld	a, (mixer_config)	;
+   425A CB DF         [ 8]  346 		set	3, a			;
+   425C 32 CD 40      [13]  347 		ld	(mixer_config), a	; disable A channel noise
+   425F 23            [ 6]  348 		inc 	hl
+                            349 
+   4260 22 E8 41      [16]  350 		ld	(current_song_pointer), hl
+   4263 CD F1 41      [17]  351 		call 	play_frame
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 12.
 Hexadecimal [16-Bits]
 
 
 
-                            352 
-   4252                     353 	not_reset_A_noise:
-   4252 FE 87         [ 7]  354 		cp 	#reset_B_noise_command
-   4254 20 10         [12]  355 		jr	nz, not_reset_B_noise
-                            356 		;;
-                            357 		;;	RESET B NOISE
-   4256 3A CD 40      [13]  358 			ld	a, (mixer_config)	;
-   4259 CB E7         [ 8]  359 			set	4, a			;
-   425B 32 CD 40      [13]  360 			ld	(mixer_config), a	; disable B channel noise
-   425E 23            [ 6]  361 			inc 	hl
-                            362 
-   425F 22 E0 41      [16]  363 			ld	(current_song_pointer), hl
-   4262 CD E9 41      [17]  364 			call 	play_frame
-   4265 C9            [10]  365 			ret
-                            366 
-   4266                     367 	not_reset_B_noise:
-   4266 FE 88         [ 7]  368 		cp 	#reset_C_noise_command
-   4268 20 10         [12]  369 		jr	nz, not_reset_C_noise
-                            370 		;;
-                            371 		;;	RESET C NOISE
-   426A 3A CD 40      [13]  372 			ld	a, (mixer_config)	;
-   426D CB EF         [ 8]  373 			set	5, a			;
-   426F 32 CD 40      [13]  374 			ld	(mixer_config), a	; disable C channel noise
-   4272 23            [ 6]  375 			inc 	hl
-                            376 
-   4273 22 E0 41      [16]  377 			ld	(current_song_pointer), hl
-   4276 CD E9 41      [17]  378 			call 	play_frame
-   4279 C9            [10]  379 			ret
-                            380 
-   427A                     381 	not_reset_C_noise:
-   427A FE 89         [ 7]  382 		cp 	#set_envelope_command
-   427C 20 1D         [12]  383 		jr	nz, not_set_envelope
-                            384 		;;
-                            385 		;;	SET ENVELOPE
-   427E 23            [ 6]  386 			inc 	hl
-                            387 
-   427F 7E            [ 7]  388 			ld	a, (hl)			; A <= envelope shape ID
-   4280 0E 0D         [ 7]  389 			ld	c, #envelope_shape_reg
-   4282 CD F7 40      [17]  390 			call	set_AY_register
-   4285 23            [ 6]  391 			inc 	hl
-                            392 
-   4286 7E            [ 7]  393 			ld	a, (hl)			; A <= envelope coarse period
-   4287 0E 0C         [ 7]  394 			ld	c, #c_envelope_period_reg
-   4289 CD F7 40      [17]  395 			call	set_AY_register
-   428C 23            [ 6]  396 			inc 	hl
-                            397 
-   428D 7E            [ 7]  398 			ld	a, (hl)			; A <= envelope fine period
-   428E 0E 0B         [ 7]  399 			ld	c, #f_envelope_period_reg
-   4290 CD F7 40      [17]  400 			call	set_AY_register
-   4293 23            [ 6]  401 			inc 	hl
+   4266 C9            [10]  352 		ret
+                            353 
+   4267                     354 	reset_B_noise_code:
+                            355 	;;	RESET B NOISE
+   4267 3A CD 40      [13]  356 		ld	a, (mixer_config)	;
+   426A CB E7         [ 8]  357 		set	4, a			;
+   426C 32 CD 40      [13]  358 		ld	(mixer_config), a	; disable B channel noise
+   426F 23            [ 6]  359 		inc 	hl
+                            360 
+   4270 22 E8 41      [16]  361 		ld	(current_song_pointer), hl
+   4273 CD F1 41      [17]  362 		call 	play_frame
+   4276 C9            [10]  363 		ret
+                            364 
+   4277                     365 	reset_C_noise_code:
+                            366 	;;	RESET C NOISE
+   4277 3A CD 40      [13]  367 		ld	a, (mixer_config)	;
+   427A CB EF         [ 8]  368 		set	5, a			;
+   427C 32 CD 40      [13]  369 		ld	(mixer_config), a	; disable C channel noise
+   427F 23            [ 6]  370 		inc 	hl
+                            371 
+   4280 22 E8 41      [16]  372 		ld	(current_song_pointer), hl
+   4283 CD F1 41      [17]  373 		call 	play_frame
+   4286 C9            [10]  374 		ret
+                            375 
+   4287                     376 	set_envelope_code:
+                            377 	;;	SET ENVELOPE
+   4287 23            [ 6]  378 		inc 	hl
+                            379 
+   4288 7E            [ 7]  380 		ld	a, (hl)			; A <= envelope shape ID
+   4289 0E 0D         [ 7]  381 		ld	c, #envelope_shape_reg
+   428B CD F7 40      [17]  382 		call	set_AY_register
+   428E 23            [ 6]  383 		inc 	hl
+                            384 
+   428F 7E            [ 7]  385 		ld	a, (hl)			; A <= envelope coarse period
+   4290 0E 0C         [ 7]  386 		ld	c, #c_envelope_period_reg
+   4292 CD F7 40      [17]  387 		call	set_AY_register
+   4295 23            [ 6]  388 		inc 	hl
+                            389 
+   4296 7E            [ 7]  390 		ld	a, (hl)			; A <= envelope fine period
+   4297 0E 0B         [ 7]  391 		ld	c, #f_envelope_period_reg
+   4299 CD F7 40      [17]  392 		call	set_AY_register
+   429C 23            [ 6]  393 		inc 	hl
+                            394 
+   429D 22 E8 41      [16]  395 		ld	(current_song_pointer), hl
+   42A0 CD F1 41      [17]  396 		call 	play_frame
+   42A3 C9            [10]  397 		ret
+                            398 
+   42A4                     399 	read_tunes_code:
+                            400 	;;	PLAY TUNES LINE
+   42A4 23            [ 6]  401 		inc 	hl
                             402 
-   4294 22 E0 41      [16]  403 			ld	(current_song_pointer), hl
-   4297 CD E9 41      [17]  404 			call 	play_frame
-   429A C9            [10]  405 			ret
-                            406 
+   42A5 CD 1D 43      [17]  403 		call 	update_PSG_mixer
+                            404 		;; play A tune
+   42A8 0E 08         [ 7]  405 		ld	c, #A_volume_reg	; C <= A volume register ID
+   42AA 16 00         [ 7]  406 		ld	d, #channel_A		; D <= channel A ID
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 13.
 Hexadecimal [16-Bits]
 
 
 
-   429B                     407 	not_set_envelope:
-                            408 	;;
-                            409 	;;	PLAY TUNES LINE
-   429B CD 13 43      [17]  410 		call 	update_PSG_mixer
-                            411 		;; play A tune
-   429E 0E 08         [ 7]  412 		ld	c, #A_volume_reg	; C <= A volume register ID
-   42A0 16 00         [ 7]  413 		ld	d, #channel_A		; D <= channel A ID
-   42A2 CD C6 42      [17]  414 		call	play_frame_tune
-                            415 
-                            416 		;; play B tune
-   42A5 0E 09         [ 7]  417 		ld	c, #B_volume_reg	; C <= B volume register ID
-   42A7 16 01         [ 7]  418 		ld	d, #channel_B		; D <= channel B ID
-   42A9 CD C6 42      [17]  419 		call	play_frame_tune
-                            420 
-                            421 		;; play C tune
-   42AC 0E 0A         [ 7]  422 		ld	c, #C_volume_reg	; C <= C volume register ID
-   42AE 16 02         [ 7]  423 		ld	d, #channel_C		; D <= channel C ID
-   42B0 CD C6 42      [17]  424 		call	play_frame_tune
-                            425 	
-   42B3                     426 	exit_play_frame:
-   42B3 22 E0 41      [16]  427 	ld	(current_song_pointer), hl
-                            428 
-   42B6 C9            [10]  429 	ret
-                            430 
-                            431 ;; HL => current song pointer
-                            432 ;;
-                            433 ;; HL keeps updated here
-                            434 ;; DESTROYS: AF, BC, DE, HL
-   42B7                     435 play_frame_noise_period:
-   42B7 23            [ 6]  436 	inc 	hl
-   42B8 7E            [ 7]  437 	ld	a, (hl)			; A <= noise period value
-   42B9 0E 06         [ 7]  438 	ld	c, #noise_period_reg
-   42BB CD F7 40      [17]  439 	call	set_AY_register
-   42BE 23            [ 6]  440 	inc 	hl
-                            441 
-   42BF 22 E0 41      [16]  442 	ld	(current_song_pointer), hl
-   42C2 CD E9 41      [17]  443 	call 	play_frame
-   42C5 C9            [10]  444 	ret
-                            445 
-                            446 ;; C => AY register ID
-                            447 ;; D => channel ID
-                            448 ;;
-                            449 ;; HL keeps updated here
-                            450 ;; DESTROYS: AF, BC, DE, HL
-   42C6                     451 play_frame_tune::
-   42C6 7E            [ 7]  452 	ld	a, (hl)			; read value 
-   42C7 CD F7 40      [17]  453 	call	set_AY_register		; set C AY register
-   42CA 23            [ 6]  454 	inc 	hl
-                            455 
-   42CB 7A            [ 4]  456 	ld	a, d		; A <= channel ID
-   42CC 46            [ 7]  457 	ld	b, (hl)		; B <= tune ID
-   42CD 23            [ 6]  458 	inc 	hl		;
-   42CE 4E            [ 7]  459 	ld 	c, (hl)		; C <= octave
-   42CF 23            [ 6]  460 	inc 	hl
-                            461 
+   42AC CD D0 42      [17]  407 		call	play_frame_tune
+                            408 
+                            409 		;; play B tune
+   42AF 0E 09         [ 7]  410 		ld	c, #B_volume_reg	; C <= B volume register ID
+   42B1 16 01         [ 7]  411 		ld	d, #channel_B		; D <= channel B ID
+   42B3 CD D0 42      [17]  412 		call	play_frame_tune
+                            413 
+                            414 		;; play C tune
+   42B6 0E 0A         [ 7]  415 		ld	c, #C_volume_reg	; C <= C volume register ID
+   42B8 16 02         [ 7]  416 		ld	d, #channel_C		; D <= channel C ID
+   42BA CD D0 42      [17]  417 		call	play_frame_tune
+                            418 	
+   42BD                     419 	exit_play_frame:
+   42BD 22 E8 41      [16]  420 	ld	(current_song_pointer), hl
+                            421 
+   42C0 C9            [10]  422 	ret
+                            423 
+                            424 ;; HL => current song pointer
+                            425 ;;
+                            426 ;; HL keeps updated here
+                            427 ;; DESTROYS: AF, BC, DE, HL
+   42C1                     428 play_frame_noise_period:
+   42C1 23            [ 6]  429 	inc 	hl
+   42C2 7E            [ 7]  430 	ld	a, (hl)			; A <= noise period value
+   42C3 0E 06         [ 7]  431 	ld	c, #noise_period_reg
+   42C5 CD F7 40      [17]  432 	call	set_AY_register
+   42C8 23            [ 6]  433 	inc 	hl
+                            434 
+   42C9 22 E8 41      [16]  435 	ld	(current_song_pointer), hl
+   42CC CD F1 41      [17]  436 	call 	play_frame
+   42CF C9            [10]  437 	ret
+                            438 
+                            439 ;; C => AY register ID
+                            440 ;; D => channel ID
+                            441 ;;
+                            442 ;; HL keeps updated here
+                            443 ;; DESTROYS: AF, BC, DE, HL
+   42D0                     444 play_frame_tune::
+   42D0 7E            [ 7]  445 	ld	a, (hl)			; read value 
+   42D1 CD F7 40      [17]  446 	call	set_AY_register		; set C AY register
+   42D4 23            [ 6]  447 	inc 	hl
+                            448 
+   42D5 7A            [ 4]  449 	ld	a, d		; A <= channel ID
+   42D6 46            [ 7]  450 	ld	b, (hl)		; B <= tune ID
+   42D7 23            [ 6]  451 	inc 	hl		;
+   42D8 4E            [ 7]  452 	ld 	c, (hl)		; C <= octave
+   42D9 23            [ 6]  453 	inc 	hl
+                            454 
+   42DA E5            [11]  455 	push	hl
+   42DB CD E0 42      [17]  456 	call	play_note
+   42DE E1            [10]  457 	pop 	hl
+                            458 
+   42DF C9            [10]  459 	ret
+                            460 
+                            461 ;; A => channel ID
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 14.
 Hexadecimal [16-Bits]
 
 
 
-   42D0 E5            [11]  462 	push	hl
-   42D1 CD D6 42      [17]  463 	call	play_note
-   42D4 E1            [10]  464 	pop 	hl
-                            465 
-   42D5 C9            [10]  466 	ret
-                            467 
-                            468 ;; A => channel ID
-                            469 ;; B => tune ID
-                            470 ;; C => octave
-                            471 ;;
-                            472 ;; DESTROYS: AF, BC, HL
-   42D6                     473 play_note::
-   42D6 FE 00         [ 7]  474 	cp #channel_A
-   42D8 20 08         [12]  475 	jr nz, is_channel_B
-                            476 		; CHANNEL A
-   42DA 1E 00         [ 7]  477 		ld	e, #A_f_pitch_reg
-   42DC 16 01         [ 7]  478 		ld	d, #A_c_pitch_reg
-   42DE CD FB 42      [17]  479 		call	play_note_channel
-                            480 
-   42E1 C9            [10]  481 		ret
-   42E2                     482 	is_channel_B:
-   42E2 FE 01         [ 7]  483 		cp #channel_B
-   42E4 20 08         [12]  484 		jr nz, is_channel_C
-                            485 			; CHANNEL B
-   42E6 1E 02         [ 7]  486 			ld	e, #B_f_pitch_reg
-   42E8 16 03         [ 7]  487 			ld	d, #B_c_pitch_reg
-   42EA CD FB 42      [17]  488 			call	play_note_channel
-                            489 
-   42ED C9            [10]  490 			ret
-   42EE                     491 	is_channel_C:
-   42EE FE 02         [ 7]  492 		cp #channel_C
-   42F0 20 08         [12]  493 		jr nz, exit_channel_selection
-                            494 			; CHANNEL C
-   42F2 1E 04         [ 7]  495 			ld	e, #C_f_pitch_reg
-   42F4 16 05         [ 7]  496 			ld	d, #C_c_pitch_reg
-   42F6 CD FB 42      [17]  497 			call	play_note_channel
-                            498 
-   42F9 C9            [10]  499 			ret
-                            500 
-   42FA                     501 	exit_channel_selection:
-   42FA C9            [10]  502 	ret
-                            503 
-                            504 ;; B => tune ID
-                            505 ;; C => octave
-                            506 ;; D => coarse pitch register ID
-                            507 ;; E => fine pitch register ID
-   42FB                     508 play_note_channel::
-   42FB D5            [11]  509 	push 	de
-   42FC CD 1C 43      [17]  510 	call	get_fine_pitch	; HL <= fine pitch value
-   42FF D1            [10]  511 	pop	de
-                            512 
-   4300 7D            [ 4]  513 	ld	a, l
-   4301 4B            [ 4]  514 	ld	c, e		; C <= fine pitch register ID
-   4302 CD F7 40      [17]  515 	call	set_AY_register
-                            516 
+                            462 ;; B => tune ID
+                            463 ;; C => octave
+                            464 ;;
+                            465 ;; DESTROYS: AF, BC, HL
+   42E0                     466 play_note::
+   42E0 FE 00         [ 7]  467 	cp #channel_A
+   42E2 20 08         [12]  468 	jr nz, is_channel_B
+                            469 		; CHANNEL A
+   42E4 1E 00         [ 7]  470 		ld	e, #A_f_pitch_reg
+   42E6 16 01         [ 7]  471 		ld	d, #A_c_pitch_reg
+   42E8 CD 05 43      [17]  472 		call	play_note_channel
+                            473 
+   42EB C9            [10]  474 		ret
+   42EC                     475 	is_channel_B:
+   42EC FE 01         [ 7]  476 		cp #channel_B
+   42EE 20 08         [12]  477 		jr nz, is_channel_C
+                            478 			; CHANNEL B
+   42F0 1E 02         [ 7]  479 			ld	e, #B_f_pitch_reg
+   42F2 16 03         [ 7]  480 			ld	d, #B_c_pitch_reg
+   42F4 CD 05 43      [17]  481 			call	play_note_channel
+                            482 
+   42F7 C9            [10]  483 			ret
+   42F8                     484 	is_channel_C:
+   42F8 FE 02         [ 7]  485 		cp #channel_C
+   42FA 20 08         [12]  486 		jr nz, exit_channel_selection
+                            487 			; CHANNEL C
+   42FC 1E 04         [ 7]  488 			ld	e, #C_f_pitch_reg
+   42FE 16 05         [ 7]  489 			ld	d, #C_c_pitch_reg
+   4300 CD 05 43      [17]  490 			call	play_note_channel
+                            491 
+   4303 C9            [10]  492 			ret
+                            493 
+   4304                     494 	exit_channel_selection:
+   4304 C9            [10]  495 	ret
+                            496 
+                            497 ;; B => tune ID
+                            498 ;; C => octave
+                            499 ;; D => coarse pitch register ID
+                            500 ;; E => fine pitch register ID
+   4305                     501 play_note_channel::
+   4305 D5            [11]  502 	push 	de
+   4306 CD 26 43      [17]  503 	call	get_fine_pitch	; HL <= fine pitch value
+   4309 D1            [10]  504 	pop	de
+                            505 
+   430A 7D            [ 4]  506 	ld	a, l
+   430B 4B            [ 4]  507 	ld	c, e		; C <= fine pitch register ID
+   430C CD F7 40      [17]  508 	call	set_AY_register
+                            509 
+   430F 7C            [ 4]  510 	ld	a, h		; A <= course pitch value (HL/256)
+   4310 4A            [ 4]  511 	ld	c, d		; C <= coarse pitch register ID
+   4311 CD F7 40      [17]  512 	call	set_AY_register
+   4314 C9            [10]  513 	ret
+                            514 
+   4315                     515 silence_PSG_mixer:
+   4315 3E 3F         [ 7]  516 	ld 	a, #0b00111111
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 15.
 Hexadecimal [16-Bits]
 
 
 
-   4305 7C            [ 4]  517 	ld	a, h		; A <= course pitch value (HL/256)
-   4306 4A            [ 4]  518 	ld	c, d		; C <= coarse pitch register ID
-   4307 CD F7 40      [17]  519 	call	set_AY_register
-   430A C9            [10]  520 	ret
-                            521 
-   430B                     522 silence_PSG_mixer:
-   430B 3E 3F         [ 7]  523 	ld 	a, #0b00111111
-   430D 0E 07         [ 7]  524 	ld	c, #mixer_reg
-   430F CD F7 40      [17]  525 	call	set_AY_register
-   4312 C9            [10]  526 	ret
+   4317 0E 07         [ 7]  517 	ld	c, #mixer_reg
+   4319 CD F7 40      [17]  518 	call	set_AY_register
+   431C C9            [10]  519 	ret
+                            520 
+   431D                     521 update_PSG_mixer:
+   431D 3A CD 40      [13]  522 	ld	a, (mixer_config)
+   4320 0E 07         [ 7]  523 	ld	c, #mixer_reg
+   4322 CD F7 40      [17]  524 	call	set_AY_register
+   4325 C9            [10]  525 	ret
+                            526 
                             527 
-   4313                     528 update_PSG_mixer:
-   4313 3A CD 40      [13]  529 	ld	a, (mixer_config)
-   4316 0E 07         [ 7]  530 	ld	c, #mixer_reg
-   4318 CD F7 40      [17]  531 	call	set_AY_register
-   431B C9            [10]  532 	ret
-                            533 
-                            534 ;; B => tune ID
-                            535 ;; C => octave
-                            536 ;; 
-                            537 ;; HL <= fine pitch value
-                            538 ;; DESTROYS: AF, BC, DE
-   431C                     539 get_fine_pitch::
-   431C 58            [ 4]  540 	ld	e, b		; E <= tune ID
-   431D CD 2F 43      [17]  541 	call 	get_tune	; HL <= tune value
-                            542 
-   4320 79            [ 4]  543 	ld	a, c
-   4321 FE 00         [ 7]  544 	cp	#0
-   4323 20 02         [12]  545 	jr	nz, octaves_loop
-                            546 		; octave is 0
-   4325 7C            [ 4]  547 		ld	a, h	; A <= tune value integer part
-   4326 C9            [10]  548 		ret
-   4327                     549 	octaves_loop:
-   4327 CB 3C         [ 8]  550 		srl 	h			;
-   4329 CB 1D         [ 8]  551 		rr 	l			; HL/2
-   432B 0D            [ 4]  552 		dec 	c
-   432C 20 F9         [12]  553 		jr	nz, octaves_loop	; EXIT IF C-- == ZERO
-   432E C9            [10]  554 	ret
-                            555 
-                            556 ;; E => tune ID
-                            557 ;; HL <= tune value
-                            558 ;;
-                            559 ;; DESTROYS AF, DE, HL
-   432F                     560 get_tune::
-   432F 21 0C 40      [10]  561 	ld	hl, #tunes_table	; HL <= Tunes vector address
-   4332 16 00         [ 7]  562 	ld	d, #0			;
-   4334 19            [11]  563 	add 	hl, de			;
-   4335 19            [11]  564 	add 	hl, de			; HL <= vector address + tuneIDx2
+                            528 
+                            529 ;; B => tune ID
+                            530 ;; C => octave
+                            531 ;; 
+                            532 ;; HL <= fine pitch value
+                            533 ;; DESTROYS: AF, BC, DE
+   4326                     534 get_fine_pitch::
+   4326 21 0C 40      [10]  535 	ld	hl, #tunes_table	; HL <= Tunes vector address
+   4329 79            [ 4]  536 	ld	a, c
+   432A FE 00         [ 7]  537 	cp	#0
+   432C 20 02         [12]  538 	jr	nz, iterate_octaves
+                            539 		; octave is 0
+   432E 18 07         [12]  540 		jr exit_octaves
+   4330                     541 	iterate_octaves:
+   4330 11 18 00      [10]  542 		ld	de, #24
+   4333                     543 	octaves_loop:
+   4333 19            [11]  544 		add 	hl, de			; HL <= HL + 32 (next octave frequencies address)
+   4334 0D            [ 4]  545 		dec 	c
+   4335 20 FC         [12]  546 		jr	nz, octaves_loop
+                            547 
+   4337                     548 	exit_octaves:
+   4337 58            [ 4]  549 		ld	e, b		; E <= tune ID
+                            550 
+   4338 16 00         [ 7]  551 		ld	d, #0		;
+   433A 19            [11]  552 		add 	hl, de		;
+   433B 19            [11]  553 		add 	hl, de		; HL <= vector address + tuneIDx2
+                            554 
+   433C 5E            [ 7]  555 		ld	e, (hl)		; 
+   433D 23            [ 6]  556 		inc 	hl		; 
+   433E 56            [ 7]  557 		ld	d, (hl)		; DE <= tune value
+                            558 
+   433F EB            [ 4]  559 		ex 	de, hl 		; HL <= tune value
+                            560 
+   4340 C9            [10]  561 	ret
+                            562 
+                            563 
+                            564 ; UI: dear imgui
                             565 
-   4336 5E            [ 7]  566 	ld	e, (hl)			; 
-   4337 23            [ 6]  567 	inc 	hl			; 
-   4338 56            [ 7]  568 	ld	d, (hl)			; DE <= tune value
-                            569 
-   4339 EB            [ 4]  570 	ex 	de, hl 			; HL <= tune value
-                            571 
+                            566 ; doc : https://github.com/AugustoRuiz/WYZTracker/blob/master/AsmPlayer/WYZPROPLAY47c_CPC.ASM
+                            567 ; doc : http://www.cpcwiki.eu/imgs/d/dc/Ay3-891x.pdf
+                            568 ; Link: http://www.sinclair.hu/hardver/otletek/ay_doc/AY-3-8912.htm
+                            569 ; Link: http://cpctech.cpc-live.com/docs/psg.html
+                            570 ; http://www.cpcmania.com/Docs/Manuals/Manual%20de%20Usuario%20Amstrad%20CPC%20464.pdf
+                            571 ; http://www.z80.info/zip/z80cpu_um.pdf#G10.1000022639
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 16.
 Hexadecimal [16-Bits]
 
 
 
-   433A C9            [10]  572 	ret
+                            572 ; http://www.next.gr/uploads/63/circuit.diagram.cpc464.png
                             573 
-                            574 
-                            575 ; UI: dear imgui
-                            576 
-                            577 ; doc : https://github.com/AugustoRuiz/WYZTracker/blob/master/AsmPlayer/WYZPROPLAY47c_CPC.ASM
-                            578 ; doc : http://www.cpcwiki.eu/imgs/d/dc/Ay3-891x.pdf
-                            579 ; Link: http://www.sinclair.hu/hardver/otletek/ay_doc/AY-3-8912.htm
-                            580 ; Link: http://cpctech.cpc-live.com/docs/psg.html
-                            581 ; http://www.cpcmania.com/Docs/Manuals/Manual%20de%20Usuario%20Amstrad%20CPC%20464.pdf
-                            582 ; http://www.z80.info/zip/z80cpu_um.pdf#G10.1000022639
-                            583 ; http://www.next.gr/uploads/63/circuit.diagram.cpc464.png
-                            584 
-                            585 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                            586 ;; 		AY-3-8910 REGISTERS
-                            587 ;;
-                            588 ;; 	0	Channel A fine pitch	8-bit (0-255)
-                            589 ;; 	1	Channel A course pitch	4-bit (0-15)
-                            590 ;; 	2	Channel B fine pitch	8-bit (0-255)
-                            591 ;; 	3	Channel B course pitch	4-bit (0-15)
-                            592 ;; 	4	Channel C fine pitch	8-bit (0-255)
-                            593 ;; 	5	Channel C course pitch	4-bit (0-15)
-                            594 ;; 	6	Noise pitch	5-bit (0-31)
-                            595 ;; 	7	Mixer	8-bit (see below)
-                            596 ;; 	8	Channel A volume	4-bit (0-15, see below)
-                            597 ;; 	9	Channel B volume	4-bit (0-15, see below)
-                            598 ;; 	10	Channel C volume	4-bit (0-15, see below)
-                            599 ;; 	11	Envelope fine duration	8-bit (0-255)
-                            600 ;; 	12	Envelope course duration	8-bit (0-255)
-                            601 ;; 	13	Envelope shape	4-bit (0-15)
-                            602 ;; 	14	I/O port A	8-bit (0-255)
-                            603 ;; 	15	I/O port B	8-bit (0-255)
-                            604 
-                            605 
-                            606 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                            607 ;; 				MIXER
-                            608 ;; Bit: 7 	6 	5 	4 	3 	2 	1 	0
-                            609 ;; 	I/O 	I/O 	Noise 	Noise 	Noise 	Tone 	Tone 	Tone
-                            610 ;; 	B 	A 	C 	B 	A 	C 	B 	A
-                            611 ;; The AY-3-8912 ignores bit 7 of this register.
-                            612 
-                            613 
-                            614 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                            615 ;;			ENVELOPES
-                            616 ;;
-                            617 ;; Select with register 13
-                            618 ;; 0	\_________	single decay then off
-                            619 ;; 1	/	single attack then hold
-                            620 ;; 4	/|_________	single attack then off
-                            621 ;; 8	\|\|\|\|\|\|\|\|\|\|\|\	repeated decay
-                            622 ;; 9	\_________	single decay then off
-                            623 ;; 10	\/\/\/\/\/\/\/\/\/\	repeated decay-attack
-                            624 ;; 11	\| 	single decay then hold
-                            625 ;; 12	/|/|/|/|/|/|/|/|/|/|/|/	repeated attack
-                            626 ;; 14	/\/\/\/\/\/\/\/\/\/	repeated attack-decay
+                            574 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                            575 ;; 		AY-3-8910 REGISTERS
+                            576 ;;
+                            577 ;; 	0	Channel A fine pitch	8-bit (0-255)
+                            578 ;; 	1	Channel A course pitch	4-bit (0-15)
+                            579 ;; 	2	Channel B fine pitch	8-bit (0-255)
+                            580 ;; 	3	Channel B course pitch	4-bit (0-15)
+                            581 ;; 	4	Channel C fine pitch	8-bit (0-255)
+                            582 ;; 	5	Channel C course pitch	4-bit (0-15)
+                            583 ;; 	6	Noise pitch	5-bit (0-31)
+                            584 ;; 	7	Mixer	8-bit (see below)
+                            585 ;; 	8	Channel A volume	4-bit (0-15, see below)
+                            586 ;; 	9	Channel B volume	4-bit (0-15, see below)
+                            587 ;; 	10	Channel C volume	4-bit (0-15, see below)
+                            588 ;; 	11	Envelope fine duration	8-bit (0-255)
+                            589 ;; 	12	Envelope course duration	8-bit (0-255)
+                            590 ;; 	13	Envelope shape	4-bit (0-15)
+                            591 ;; 	14	I/O port A	8-bit (0-255)
+                            592 ;; 	15	I/O port B	8-bit (0-255)
+                            593 
+                            594 
+                            595 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                            596 ;; 				MIXER
+                            597 ;; Bit: 7 	6 	5 	4 	3 	2 	1 	0
+                            598 ;; 	I/O 	I/O 	Noise 	Noise 	Noise 	Tone 	Tone 	Tone
+                            599 ;; 	B 	A 	C 	B 	A 	C 	B 	A
+                            600 ;; The AY-3-8912 ignores bit 7 of this register.
+                            601 
+                            602 
+                            603 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                            604 ;;			ENVELOPES
+                            605 ;;
+                            606 ;; Select with register 13
+                            607 ;; 0	\_________	single decay then off
+                            608 ;; 1	/	single attack then hold
+                            609 ;; 4	/|_________	single attack then off
+                            610 ;; 8	\|\|\|\|\|\|\|\|\|\|\|\	repeated decay
+                            611 ;; 9	\_________	single decay then off
+                            612 ;; 10	\/\/\/\/\/\/\/\/\/\	repeated decay-attack
+                            613 ;; 11	\| 	single decay then hold
+                            614 ;; 12	/|/|/|/|/|/|/|/|/|/|/|/	repeated attack
+                            615 ;; 14	/\/\/\/\/\/\/\/\/\/	repeated attack-decay
+                            616 ;; 15	/|_________	single attack then off
+                            617 
+                            618 
+                            619 
+                            620 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                            621 ;;		PITCH
+                            622 ;;
+                            623 ;;	fine 	= value/2^octave
+                            624 ;;	course	= fine/256
+                            625 ;;	
+                            626 ;;	Note 	Frequency (Hz) 	
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 17.
 Hexadecimal [16-Bits]
 
 
 
-                            627 ;; 15	/|_________	single attack then off
-                            628 
-                            629 
-                            630 
-                            631 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                            632 ;;		PITCH
-                            633 ;;
-                            634 ;;	fine 	= value/2^octave
-                            635 ;;	course	= fine/256
-                            636 ;;	
-                            637 ;;	Note 	Frequency (Hz) 	
-                            638 ;;	A 	220
-                            639 ;;	A# 	233.3
-                            640 ;;	B 	246.94
-                            641 ;;	C	261.63 	
-                            642 ;;	C# 	277.2
-                            643 ;;	D 	293.66
-                            644 ;;	D# 	311.1
-                            645 ;;	E 	329.63
-                            646 ;;	F 	349.23
-                            647 ;;	F# 	370
-                            648 ;;	G 	392
-                            649 ;;	G# 	415.3
-                            650 ;;	
-                            651 ;;	Note	Value
-                            652 ;;	C	3421
-                            653 ;;	C#	3228
-                            654 ;;	D	3047
-                            655 ;;	D#	2876
-                            656 ;;	E	2715
-                            657 ;;	F	2562
-                            658 ;;	F#	2419
-                            659 ;;	G	2283
-                            660 ;;	G#	2155
-                            661 ;;	A	2034
-                            662 ;;	A#	1920
-                            663 ;;	B	1892
+                            627 ;;	A 	220
+                            628 ;;	A# 	233.3
+                            629 ;;	B 	246.94
+                            630 ;;	C	261.63 	
+                            631 ;;	C# 	277.2
+                            632 ;;	D 	293.66
+                            633 ;;	D# 	311.1
+                            634 ;;	E 	329.63
+                            635 ;;	F 	349.23
+                            636 ;;	F# 	370
+                            637 ;;	G 	392
+                            638 ;;	G# 	415.3
+                            639 ;;	
+                            640 ;;	Note	Value
+                            641 ;;	C	3421
+                            642 ;;	C#	3228
+                            643 ;;	D	3047
+                            644 ;;	D#	2876
+                            645 ;;	E	2715
+                            646 ;;	F	2562
+                            647 ;;	F#	2419
+                            648 ;;	G	2283
+                            649 ;;	G#	2155
+                            650 ;;	A	2034
+                            651 ;;	A#	1920
+                            652 ;;	B	1892
