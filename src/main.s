@@ -39,19 +39,9 @@ current_noise:		.db #0
 .equ	_B,	#11
 
 tunes_table::
+;	C - 0, C# - 1, D - 2, D# - 3, E - 4, F - 5, F# - 6, G - 7, G# - 8, A - 9, A# - 10, B - 11 ;
 ;; OCTAVE -3,
-	.dw #3822	;   C	-   0	;
-	.dw #3608	;   C#	-   1	;
-	.dw #3405	;   D	-   2	;
-	.dw #3214	;   D#	-   3	;
-	.dw #3034	;   E	-   4	;
-	.dw #2863	;   F	-   5	;
-	.dw #2703	;   F#	-   6	;
-	.dw #2551	;   G	-   7	;
-	.dw #2408	;   G#	-   8	;
-	.dw #2273	;   A	-   9	;
-	.dw #2145	;   A#	-   10	;
-	.dw #2025	;   B	-   11	;
+	.dw #3822, #3608, #3405, #3214, #3034, #2863, #2703, #2551, #2408, #2273, #2145, #2025
 ;; OCTAVE -2,
 	.dw #1911, #1804, #1703, #1607, #1517, #1432, #1351, #1276, #1204, #1136, #1073, #1012
 ;; OCTAVE -1,
@@ -92,52 +82,12 @@ player_n_interruptions: .db #player_period
 
 mixer_config:	.db #0b00111000
 
-; FIRST TEST
-; Input
-; note 3421
-; octave 4
-; 
-; Output
-; fine 213
-; course 0
-; tune playing
-
-; SECOND TEST
-; Input
-; note 3421 (C)
-; octave 0-8
-;
-; Output
-; Octave:Fine - Course
-; 0:	 3421 - 13
-; 1:	 1710 - 6
-; 2:	  855 - 3
-; 3:	  427 - 1
-; 4:	  213 - 0
-; 5:	  106 - 0
-; 6:	   53 - 0
-; 7:	   26 - 0
-; 8:	   13 - 0
-
-
 _main::
 	call initialize_player
-	ld	ix, #current_octave	; IX <= octave position
 	loop:
 
 		jp 	loop
 
-musicHandler::
-	ld 	a, (player_n_interruptions)
-	dec 	a
-	jr 	nz, not_play
-		;; n_interruptions == 0
-		call 	play_frame
-		ld 	a, #player_period
-
-	not_play:
-		ld 	(player_n_interruptions), a
-	ret
 
 initialize_player:
 	ld 	hl, #musicHandler
@@ -150,24 +100,16 @@ initialize_player:
 
 	ret
 
+musicHandler::
+	ld 	a, (player_n_interruptions)
+	dec 	a
+	jr 	nz, not_play
+		;; n_interruptions == 0
+		call 	play_frame
+		ld 	a, #player_period
 
-;; A => given value to set
-;; C => register ID
-;;
-;; DESTROYS BC
-set_AY_register:
-	ld 	b,#0xF4
-	out 	(c), c
-	ld 	bc,#0xF6C0
-	out 	(c),c
-	.db #0xED, #0x71
-
-	ld 	b,#0xF4
-	out 	(c), a
-	ld 	bc,#0xF680
-	out 	(c),c
-	.db #0xED, #0x71
-
+	not_play:
+		ld 	(player_n_interruptions), a
 	ret
 
 ;;			0	1	2	3	4	5	6	7	 8
@@ -244,32 +186,8 @@ current_song_pointer: 		.dw #0
 .equ set_envelope_command,	#9
 .equ read_line_command,		#10
 
-;; Switch
-;;
-;;ld a, (hl)
-;;add a
-;;add a
-;;ld (jump_from), a
-;;jump_from = .+1
-;;jr 00 
-;;jp comando1
-;;jp comando2
-;;jp comando3
-;;jp comando4
-;;....
-;;
-;;comando1:
-;;	....
-;;
-;;comando2:
-;;	....
-;;
-;;comando3:
-;;	....
-
-
 ;; HL => song pointer
-set_song_pointer:
+set_song_pointer::
 	ld	(current_song_init_pointer), hl
 	ld	(current_song_pointer), hl
 	ret
@@ -441,7 +359,7 @@ play_frame_noise_period:
 ;;
 ;; HL keeps updated here
 ;; DESTROYS: AF, BC, DE, HL
-play_frame_tune::
+play_frame_tune:
 	ld	a, (hl)			; read value 
 	call	set_AY_register		; set C AY register
 	inc 	hl
@@ -463,7 +381,7 @@ play_frame_tune::
 ;; C => octave
 ;;
 ;; DESTROYS: AF, BC, HL
-play_note::
+play_note:
 	cp #channel_A
 	jr nz, is_channel_B
 		; CHANNEL A
@@ -560,6 +478,24 @@ get_fine_pitch::
 
 	ret
 
+;; A => given value to set
+;; C => register ID
+;;
+;; DESTROYS BC
+set_AY_register:
+	ld 	b,#0xF4
+	out 	(c), c
+	ld 	bc,#0xF6C0
+	out 	(c),c
+	.db #0xED, #0x71
+
+	ld 	b,#0xF4
+	out 	(c), a
+	ld 	bc,#0xF680
+	out 	(c),c
+	.db #0xED, #0x71
+
+	ret
 
 ; UI: dear imgui
 
