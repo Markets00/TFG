@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <string>
+#include <sstream>
 
 //////////////////////////////////
 // DEFINES AND NEEDED VALUES    //
@@ -94,7 +95,6 @@ struct TPatternsCollection {
         int nPatterns;
 
     public:
-
         TPatternsCollection() {
             collection.push_back(TPattern());
 
@@ -149,9 +149,9 @@ struct TInstrument {
         repeat          = false;
         lastFrame       = 0;
 
-        activeFrames    = std::vector<bool>(true,   INSTR_FRAMES_LENGTH);
-        volumeFrames    = std::vector<int>(15,      INSTR_FRAMES_LENGTH);
-        noiseFrames     = std::vector<int>(0,       INSTR_FRAMES_LENGTH);
+        activeFrames    = std::vector<bool>(INSTR_FRAMES_LENGTH,    true);
+        volumeFrames    = std::vector<int>(INSTR_FRAMES_LENGTH,     15);
+        noiseFrames     = std::vector<int>(INSTR_FRAMES_LENGTH,     0);
     }
 };
 
@@ -212,7 +212,9 @@ struct TInstrumentsCollection {
 //////////////////////////////
 // FORWARD DECLARATIONS     //
 //////////////////////////////
+void PrintInstrumentsWorkspace();
 void PrintInstrumentsGrid();
+void PrintInstrumentEditor();
 void PrintPatternsGrid();
 void PrintWorkingGrid();
 void ReadKeyboard();
@@ -257,7 +259,7 @@ int main() {
 
         ImGui::SFML::Update(window, deltaClock.restart());
 
-        PrintInstrumentsGrid();
+        PrintInstrumentsWorkspace();
         PrintPatternsGrid();
         PrintWorkingGrid();
 
@@ -337,6 +339,118 @@ void PrintWorkingGrid() {
     ImGui::EndChild();
 }
 
+void PrintInstrumentsWorkspace() {
+    ImGui::Columns(2);
+    PrintInstrumentsGrid();
+    ImGui::NextColumn();
+    PrintInstrumentEditor();
+    ImGui::Columns(1);
+    ImGui::Separator();
+}
+
+// struct TInstrument {
+//     int     ID;
+//     char    *name;
+//     bool    repeat;
+//     int     lastFrame;
+//     std::vector<bool>    activeFrames;
+//     std::vector<int>     volumeFrames;
+//     std::vector<int>     noiseFrames;
+// 
+//     TInstrument() {
+//         ID              = nextInstrumentID++;
+//         name            = "MyInstrument";
+//         repeat          = false;
+//         lastFrame       = 0;
+// 
+//         activeFrames    = std::vector<bool>(true,   INSTR_FRAMES_LENGTH);
+//         volumeFrames    = std::vector<int>(15,      INSTR_FRAMES_LENGTH);
+//         noiseFrames     = std::vector<int>(0,       INSTR_FRAMES_LENGTH);
+//     }
+// };
+
+#define BUTTON_MAX_HEIGTH   80
+#define BUTTON_MAX_WIDTH    20
+#define MAX_VOLUME          15
+std::string msg="";
+
+void PrintInstrumentEditor() {
+    TInstrument * instr = instruments.GetCurrentInstrument();
+    static char buffer[INSTR_FRAMES_LENGTH*3];
+    float values[INSTR_FRAMES_LENGTH];
+
+    for(int i = 0; i < INSTR_FRAMES_LENGTH; i++)
+        values[i] = (float)instr->volumeFrames[i];
+
+    ImGui::BeginChild("##instrumentsscrollingregion", ImVec2(1000, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
+
+    ImGui::PlotHistogram("Histogram", values, IM_ARRAYSIZE(values), 20, NULL, 0, 15, ImVec2(BUTTON_MAX_WIDTH*INSTR_FRAMES_LENGTH,BUTTON_MAX_HEIGTH));
+
+    if(ImGui::InputText("##volumeinput", buffer, IM_ARRAYSIZE(buffer))) {
+        std::string strBuffer = buffer;
+        std::istringstream iss(strBuffer);
+        std::string subStr    = "";
+
+        std::string debugStr    = "";
+
+        int frame = 0;
+        while(iss) {
+            iss >> subStr;
+            debugStr = debugStr + subStr + " ";
+            if(!subStr.empty())
+                instr->volumeFrames[frame++] = std::stoi(subStr);
+        }
+
+        ImGui::TextUnformatted(debugStr.c_str());
+    }
+
+
+//    for(int i = 0; i < INSTR_FRAMES_LENGTH; i++) {
+//        buttName = std::to_string(instr->volumeFrames[i]) + "##vol" + std::to_string(i);
+//        buttHeight = ((float)instr->volumeFrames[i]/MAX_VOLUME)*BUTTON_MAX_HEIGTH;
+//        clicked = false;
+//
+//
+//        buttonPos   = ImGui::GetCursorPosY();
+////        ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, ImVec4(0, 0, 0, 255));
+////        if(ImGui::Button(("##N"+std::to_string(i)).c_str(), ImVec2(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGTH - buttHeight))) {
+////            mousePos    = ImGui::GetMousePos();
+////            clicked     = true;
+////        }
+////        ImGui::PopStyleColor();
+//
+//        ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, ImVec4(0, 0, 204, 255));
+//        if(ImGui::Button((buttName+"B").c_str(), ImVec2(BUTTON_MAX_WIDTH, buttHeight))) {
+//            mousePos    = ImGui::GetMousePos();
+//            clicked     = true;
+//        }
+//        ImGui::PopStyleColor();
+//
+//        if(clicked) {
+//            float distance = std::abs(buttonPos - mousePos.y);
+//
+//            //instr->volumeFrames[i] = (int) (distance/BUTTON_MAX_HEIGTH)*MAX_VOLUME;
+//            msg = "Modified frame " + std::to_string(i) + " to " + std::to_string(instr->volumeFrames[i])
+//            + "; Distance=" + std::to_string(distance) + "; Button Height=" + std::to_string(buttHeight);
+//        }
+//        ImGui::SameLine();
+//    }
+
+    
+
+    ImGui::EndChild();
+
+
+// ImGuiCol_Button
+// PushStyleColor(ImGuiCol idx, ImU32 col);
+// PushStyleColor(ImGuiCol idx, const ImVec4& col);
+// PopStyleColor(int count = 1);
+// Button(const char* label, const ImVec2& size = ImVec2(0,0));
+    // ImGui::PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
+    // ImGui::PlotHistogram("Histogram", values, IM_ARRAYSIZE(values), 20, NULL, 0, 15, ImVec2(1000,80));
+    //void PlotHistogram("volumeHist", const float *values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
+}
+
 void PrintPatternsGrid() {
     if(ImGui::SmallButton("Add Pattern")) {
         patterns.NewPattern();
@@ -349,10 +463,10 @@ void PrintPatternsGrid() {
         }
         ImGui::SameLine();
         
-        if(ImGui::SmallButton(("Delete##" + std::to_string(i)).c_str())) {
+        if(ImGui::SmallButton(("Delete##P" + std::to_string(i)).c_str())) {
             patterns.DeletePattern(i);
         }
-    }   
+    }
 }
 
 void PrintInstrumentsGrid() {
@@ -369,10 +483,10 @@ void PrintInstrumentsGrid() {
         }
         ImGui::SameLine();
         
-        if(ImGui::SmallButton(("Delete##" + std::to_string(instr->ID)).c_str())) {
+        if(ImGui::SmallButton(("Delete##I" + std::to_string(instr->ID)).c_str())) {
             instruments.DeleteInstrument(i);
         }
-    }   
+    }
 }
 
 #define Z_KEY_ID        25      // C
@@ -426,26 +540,33 @@ void ReadKeyboard() {
     else if (io.KeysDownDuration[N_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][9];     }
     else if (io.KeysDownDuration[J_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][10];    }
     else if (io.KeysDownDuration[M_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][11];    }
-
-    else if (io.KeysDownDuration[Q_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][0];     }
-    else if (io.KeysDownDuration[TWO_KEY_ID] >= 0.0f)   {   period = TunesTable[octave][1];     }
-    else if (io.KeysDownDuration[W_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][2];     }
-    else if (io.KeysDownDuration[THREE_KEY_ID] >= 0.0f) {   period = TunesTable[octave][3];     }
-    else if (io.KeysDownDuration[E_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][4];     }
-    else if (io.KeysDownDuration[R_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][5];     }
-    else if (io.KeysDownDuration[FIVE_KEY_ID] >= 0.0f)  {   period = TunesTable[octave][6];     }
-    else if (io.KeysDownDuration[T_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][7];     }
-    else if (io.KeysDownDuration[SIX_KEY_ID] >= 0.0f)   {   period = TunesTable[octave][8];     }
-    else if (io.KeysDownDuration[Y_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][9];     }
-    else if (io.KeysDownDuration[SEVEN_KEY_ID] >= 0.0f) {   period = TunesTable[octave][10];    }
-    else if (io.KeysDownDuration[U_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][11];    }
-
-    else if (io.KeysDownDuration[I_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][0];     }
-    else if (io.KeysDownDuration[NINE_KEY_ID] >= 0.0f)  {   period = TunesTable[octave][1];     }
-    else if (io.KeysDownDuration[O_KEY_ID] >= 0.0f)     {   period = TunesTable[octave][2];     }
-    else if (io.KeysDownDuration[ZERO_KEY_ID] >= 0.0f)  {   period = TunesTable[octave][3];     }
     else {  pressed = false;    }
 
+    if(!pressed && octave < 7) {
+        pressed = true;
+        if  (    io.KeysDownDuration[Q_KEY_ID] >= 0.0f)     {   period = TunesTable[octave+1][0];   }
+        else if (io.KeysDownDuration[TWO_KEY_ID] >= 0.0f)   {   period = TunesTable[octave+1][1];   }
+        else if (io.KeysDownDuration[W_KEY_ID] >= 0.0f)     {   period = TunesTable[octave+1][2];   }
+        else if (io.KeysDownDuration[THREE_KEY_ID] >= 0.0f) {   period = TunesTable[octave+1][3];   }
+        else if (io.KeysDownDuration[E_KEY_ID] >= 0.0f)     {   period = TunesTable[octave+1][4];   }
+        else if (io.KeysDownDuration[R_KEY_ID] >= 0.0f)     {   period = TunesTable[octave+1][5];   }
+        else if (io.KeysDownDuration[FIVE_KEY_ID] >= 0.0f)  {   period = TunesTable[octave+1][6];   }
+        else if (io.KeysDownDuration[T_KEY_ID] >= 0.0f)     {   period = TunesTable[octave+1][7];   }
+        else if (io.KeysDownDuration[SIX_KEY_ID] >= 0.0f)   {   period = TunesTable[octave+1][8];   }
+        else if (io.KeysDownDuration[Y_KEY_ID] >= 0.0f)     {   period = TunesTable[octave+1][9];   }
+        else if (io.KeysDownDuration[SEVEN_KEY_ID] >= 0.0f) {   period = TunesTable[octave+1][10];  }
+        else if (io.KeysDownDuration[U_KEY_ID] >= 0.0f)     {   period = TunesTable[octave+1][11];  }
+        else {  pressed = false;    }
+    }
+
+    if(!pressed && octave < 6) {
+        pressed = true;
+        if      (io.KeysDownDuration[I_KEY_ID] >= 0.0f)     {   period = TunesTable[octave+2][0];   }
+        else if (io.KeysDownDuration[NINE_KEY_ID] >= 0.0f)  {   period = TunesTable[octave+2][1];   }
+        else if (io.KeysDownDuration[O_KEY_ID] >= 0.0f)     {   period = TunesTable[octave+2][2];   }
+        else if (io.KeysDownDuration[ZERO_KEY_ID] >= 0.0f)  {   period = TunesTable[octave+2][3];   }
+        else {  pressed = false;    }
+    }
     if(pressed) {
         ayumi_set_pan(&ay_emu, CHANNEL_A, 0.5, true);
         ayumi_set_mixer(&ay_emu, CHANNEL_A, false, true, false);
