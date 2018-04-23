@@ -56,7 +56,7 @@ int TunesTable[8][12] = {
 #define GRID_ROWS 32
 
 #define INSTR_NAME_LENGTH   50
-#define INSTR_FRAMES_LENGTH 128
+#define INSTR_FRAMES_LENGTH 32
 
 //////////////////////////////
 // STRUCT IMPLEMENTATIONS   //
@@ -372,15 +372,15 @@ void PrintInstrumentsWorkspace() {
 #define BUTTON_MAX_HEIGTH   80
 #define BUTTON_MAX_WIDTH    20
 #define MAX_VOLUME          15
-std::string msg="";
+std::string debugStr    = "";
+std::string subStr    = "";
+
+float values[INSTR_FRAMES_LENGTH];
 
 void PrintInstrumentEditor() {
     TInstrument * instr = instruments.GetCurrentInstrument();
     static char buffer[INSTR_FRAMES_LENGTH*3];
-    float values[INSTR_FRAMES_LENGTH];
 
-    for(int i = 0; i < INSTR_FRAMES_LENGTH; i++)
-        values[i] = (float)instr->volumeFrames[i];
 
     ImGui::BeginChild("##instrumentsscrollingregion", ImVec2(1000, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
 
@@ -389,20 +389,24 @@ void PrintInstrumentEditor() {
     if(ImGui::InputText("##volumeinput", buffer, IM_ARRAYSIZE(buffer))) {
         std::string strBuffer = buffer;
         std::istringstream iss(strBuffer);
-        std::string subStr    = "";
 
-        std::string debugStr    = "";
-
-        int frame = 0;
-        while(iss) {
+        int frame   = 0;
+        debugStr    = "";
+        debugStr = "Instr " + std::to_string(instr->ID) + " - ";
+        while(iss && frame < INSTR_FRAMES_LENGTH) {
+            subStr = "";
             iss >> subStr;
-            debugStr = debugStr + subStr + " ";
-            if(!subStr.empty())
-                instr->volumeFrames[frame++] = std::stoi(subStr);
+            if(!subStr.empty()) {
+                debugStr = debugStr + "[" + std::to_string(frame) + "," + std::to_string(std::stoi(subStr, nullptr)) + "]: " + std::to_string((float)instr->volumeFrames[frame]) + " ";
+                instr->volumeFrames[frame++] = std::stoi(subStr, nullptr);
+            }
         }
 
-        ImGui::TextUnformatted(debugStr.c_str());
+        for(int i = 0; i < INSTR_FRAMES_LENGTH; i++)
+            values[i] = (float)instr->volumeFrames[i];
+
     }
+    ImGui::TextUnformatted(debugStr.c_str());
 
 
 //    for(int i = 0; i < INSTR_FRAMES_LENGTH; i++) {
@@ -567,6 +571,7 @@ void ReadKeyboard() {
         else if (io.KeysDownDuration[ZERO_KEY_ID] >= 0.0f)  {   period = TunesTable[octave+2][3];   }
         else {  pressed = false;    }
     }
+
     if(pressed) {
         ayumi_set_pan(&ay_emu, CHANNEL_A, 0.5, true);
         ayumi_set_mixer(&ay_emu, CHANNEL_A, false, true, false);
