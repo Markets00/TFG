@@ -384,7 +384,7 @@ void PrintInstrumentEditor() {
 
     ImGui::BeginChild("##instrumentsscrollingregion", ImVec2(1000, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
 
-    ImGui::PlotHistogram("Histogram", values, IM_ARRAYSIZE(values), 20, NULL, 0, 15, ImVec2(BUTTON_MAX_WIDTH*INSTR_FRAMES_LENGTH,BUTTON_MAX_HEIGTH));
+    ImGui::PlotHistogram("Histogram", values, IM_ARRAYSIZE(values), 0, NULL, 0, 15, ImVec2(BUTTON_MAX_WIDTH*INSTR_FRAMES_LENGTH,BUTTON_MAX_HEIGTH));
 
     if(ImGui::InputText("##volumeinput", buffer, IM_ARRAYSIZE(buffer))) {
         std::string strBuffer = buffer;
