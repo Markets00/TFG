@@ -8,7 +8,6 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
 
 #include <cstring>
 #include <string>
@@ -225,26 +224,23 @@ struct      ayumi ay_emu;
 TPatternsCollection     patterns;
 TInstrumentsCollection  instruments;
 
+bool error = false;
+std::string errorMsg = "Error ini";
 //////////////////////////////
 //      MAIN FUNCTION       //
 //////////////////////////////
 int main() {
-    bool show_demo_window = true;
     sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
     io.AddInputCharactersUTF8("<azsxcfvgbhnmk,l.q2w3e4rt6y7ui9o0p");
 
-    ImGuiStyle * style = &ImGui::GetStyle();
-
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    // ImGuiStyle * style = &ImGui::GetStyle();
     sf::Clock deltaClock;
 
     // AYUMI emulator
     ayumi_configure(&ay_emu, true, 2000000, 44100); // 3,3 MHz
-
 
 
     while (window.isOpen()) {
@@ -263,8 +259,17 @@ int main() {
         PrintPatternsGrid();
         PrintWorkingGrid();
 
+        // Show errors modal popup
+        if(error) {
+            ImGui::OpenPopup("Error");
+        }
+        if (ImGui::BeginPopupModal("Error", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text(errorMsg.c_str());
+            ImGui::Separator();
 
-        ImGui::ShowDemoWindow(&show_demo_window);
+            if (ImGui::Button("OK", ImVec2(120,0))) { ImGui::CloseCurrentPopup(); error = false; }
+            ImGui::EndPopup();
+        }
 
         window.clear();
         ImGui::SFML::Render(window);
@@ -372,87 +377,82 @@ void PrintInstrumentsWorkspace() {
 #define BUTTON_MAX_HEIGTH   80
 #define BUTTON_MAX_WIDTH    20
 #define MAX_VOLUME          15
-std::string debugStr    = "";
 std::string subStr    = "";
 
 float values[INSTR_FRAMES_LENGTH];
 
 void PrintInstrumentEditor() {
     TInstrument * instr = instruments.GetCurrentInstrument();
-    static char buffer[INSTR_FRAMES_LENGTH*3];
 
+    static char volBuffer[INSTR_FRAMES_LENGTH*3];
+    static char volBackup[INSTR_FRAMES_LENGTH*3];
+    for(int i = 0; i < INSTR_FRAMES_LENGTH; i++)
+        values[i] = (float)instr->volumeFrames[i];
 
     ImGui::BeginChild("##instrumentsscrollingregion", ImVec2(1000, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
 
-    ImGui::PlotHistogram("Histogram", values, IM_ARRAYSIZE(values), 0, NULL, 0, 15, ImVec2(BUTTON_MAX_WIDTH*INSTR_FRAMES_LENGTH,BUTTON_MAX_HEIGTH));
-
-    if(ImGui::InputText("##volumeinput", buffer, IM_ARRAYSIZE(buffer))) {
-        std::string strBuffer = buffer;
+    // Volume
+    ImGui::PlotHistogram("Volume##hist", values, IM_ARRAYSIZE(values), 0, NULL, 0, 15, ImVec2(BUTTON_MAX_WIDTH*INSTR_FRAMES_LENGTH,BUTTON_MAX_HEIGTH));
+    if(ImGui::InputText("##volumeinput", volBuffer, IM_ARRAYSIZE(volBuffer))) {
+        std::string strBuffer = volBuffer;
         std::istringstream iss(strBuffer);
 
         int frame   = 0;
-        debugStr    = "";
-        debugStr = "Instr " + std::to_string(instr->ID) + " - ";
         while(iss && frame < INSTR_FRAMES_LENGTH) {
             subStr = "";
             iss >> subStr;
             if(!subStr.empty()) {
-                debugStr = debugStr + "[" + std::to_string(frame) + "," + std::to_string(std::stoi(subStr, nullptr)) + "]: " + std::to_string((float)instr->volumeFrames[frame]) + " ";
-                instr->volumeFrames[frame++] = std::stoi(subStr, nullptr);
+                try {
+                    instr->volumeFrames[frame++] = std::stoi(subStr, nullptr);
+                } catch (std::exception& e) {
+                    for(int i = 0; i < INSTR_FRAMES_LENGTH*3; i++)
+                        volBuffer[i] = volBackup[i];
+
+                    error = true;
+                    errorMsg = "Inserted \"" + subStr + "\". Volume and noise only accept 0-9 characters and spaces.\n"
+                        + "You can specify volume or noise of each column writting a value from 0 to 15, with spacing between each value.\n";
+                }
             }
         }
 
-        for(int i = 0; i < INSTR_FRAMES_LENGTH; i++)
-            values[i] = (float)instr->volumeFrames[i];
-
+        for(int i = 0; i < INSTR_FRAMES_LENGTH*3; i++)
+            volBackup[i] = volBuffer[i];
     }
-    ImGui::TextUnformatted(debugStr.c_str());
 
+    static char noiseBuffer[INSTR_FRAMES_LENGTH*3];
+    static char noiseBackup[INSTR_FRAMES_LENGTH*3];
+    for(int i = 0; i < INSTR_FRAMES_LENGTH; i++)
+        values[i] = (float)instr->noiseFrames[i];
 
-//    for(int i = 0; i < INSTR_FRAMES_LENGTH; i++) {
-//        buttName = std::to_string(instr->volumeFrames[i]) + "##vol" + std::to_string(i);
-//        buttHeight = ((float)instr->volumeFrames[i]/MAX_VOLUME)*BUTTON_MAX_HEIGTH;
-//        clicked = false;
-//
-//
-//        buttonPos   = ImGui::GetCursorPosY();
-////        ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, ImVec4(0, 0, 0, 255));
-////        if(ImGui::Button(("##N"+std::to_string(i)).c_str(), ImVec2(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGTH - buttHeight))) {
-////            mousePos    = ImGui::GetMousePos();
-////            clicked     = true;
-////        }
-////        ImGui::PopStyleColor();
-//
-//        ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, ImVec4(0, 0, 204, 255));
-//        if(ImGui::Button((buttName+"B").c_str(), ImVec2(BUTTON_MAX_WIDTH, buttHeight))) {
-//            mousePos    = ImGui::GetMousePos();
-//            clicked     = true;
-//        }
-//        ImGui::PopStyleColor();
-//
-//        if(clicked) {
-//            float distance = std::abs(buttonPos - mousePos.y);
-//
-//            //instr->volumeFrames[i] = (int) (distance/BUTTON_MAX_HEIGTH)*MAX_VOLUME;
-//            msg = "Modified frame " + std::to_string(i) + " to " + std::to_string(instr->volumeFrames[i])
-//            + "; Distance=" + std::to_string(distance) + "; Button Height=" + std::to_string(buttHeight);
-//        }
-//        ImGui::SameLine();
-//    }
+    ImGui::PlotHistogram("Noise##hist", values, IM_ARRAYSIZE(values), 0, NULL, 0, 15, ImVec2(BUTTON_MAX_WIDTH*INSTR_FRAMES_LENGTH,BUTTON_MAX_HEIGTH));
+    if(ImGui::InputText("##noiseinput", noiseBuffer, IM_ARRAYSIZE(noiseBuffer))) {
+        std::string strBuffer = noiseBuffer;
+        std::istringstream iss(strBuffer);
 
-    
+        int frame   = 0;
+        while(iss && frame < INSTR_FRAMES_LENGTH) {
+            subStr = "";
+            iss >> subStr;
+            if(!subStr.empty()) {
+                
+                try {
+                    instr->noiseFrames[frame++] = std::stoi(subStr, nullptr);
+                } catch (std::exception& e) {
+                    for(int i = 0; i < INSTR_FRAMES_LENGTH*3; i++)
+                        noiseBuffer[i] = noiseBackup[i];
+
+                    error = true;
+                    errorMsg = "Inserted \"" + subStr + "\". Volume and noise only accept 0-9 characters and spaces.\n"
+                        + "You can specify volume or noise of each column writting a value from 0 to 15, with spacing between each value.\n";
+                }
+            }
+        }
+
+        for(int i = 0; i < INSTR_FRAMES_LENGTH*3; i++)
+            noiseBackup[i] = noiseBuffer[i];
+    }
 
     ImGui::EndChild();
-
-
-// ImGuiCol_Button
-// PushStyleColor(ImGuiCol idx, ImU32 col);
-// PushStyleColor(ImGuiCol idx, const ImVec4& col);
-// PopStyleColor(int count = 1);
-// Button(const char* label, const ImVec2& size = ImVec2(0,0));
-    // ImGui::PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
-    // ImGui::PlotHistogram("Histogram", values, IM_ARRAYSIZE(values), 20, NULL, 0, 15, ImVec2(1000,80));
-    //void PlotHistogram("volumeHist", const float *values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
 }
 
 void PrintPatternsGrid() {
