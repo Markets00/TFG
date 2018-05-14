@@ -13,6 +13,10 @@
 #include <string>
 #include <sstream>
 
+
+#include <stdio.h>
+#include <string.h>
+
 //////////////////////////////////
 // DEFINES AND NEEDED VALUES    //
 //////////////////////////////////
@@ -56,6 +60,11 @@ int TunesTable[8][12] = {
 
 #define INSTR_NAME_LENGTH   50
 #define INSTR_FRAMES_LENGTH 32
+
+bool requestPath = false;
+std::string pathAction = "";
+int targetInstr = 0;
+char pathBuffer[400];
 
 //////////////////////////////
 // STRUCT IMPLEMENTATIONS   //
@@ -135,22 +144,57 @@ struct TPatternsCollection {
 int nextInstrumentID = 1;
 struct TInstrument {
     int     ID;
-    char    *name;
+    char    name[INSTR_NAME_LENGTH];
     bool    repeat;
     int     lastFrame;
-    std::vector<bool>    activeFrames;
-    std::vector<int>     volumeFrames;
-    std::vector<int>     noiseFrames;
+    int     loopBegin;
+    int     loopEnd;
+    std::string         savePath;
+    std::vector<bool>   activeFrames;
+    std::vector<int>    volumeFrames;
+    std::vector<int>    noiseFrames;
 
     TInstrument() {
+        strcpy(name, "MyInstrument");
         ID              = nextInstrumentID++;
-        name            = "MyInstrument";
         repeat          = false;
         lastFrame       = 0;
+        loopBegin       = 0;
+        loopEnd         = 0;
 
-        activeFrames    = std::vector<bool>(INSTR_FRAMES_LENGTH,    true);
+        savePath        = "";
+        activeFrames    = std::vector<bool>(INSTR_FRAMES_LENGTH,    false);
         volumeFrames    = std::vector<int>(INSTR_FRAMES_LENGTH,     15);
         noiseFrames     = std::vector<int>(INSTR_FRAMES_LENGTH,     0);
+    }
+
+    void Save() {
+        if(savePath.empty()) {
+            // Ask for path
+            SaveAs();
+        } else {
+            SaveInstrument(savePath);
+        }
+    }
+
+    void SaveAs() {
+        strcpy(pathBuffer, savePath.c_str());
+        requestPath     = true;
+        pathAction      = "Save As";
+        targetInstr     = ID-1;
+    }
+
+    void Load(std::string loadPath) {
+        savePath = loadPath;
+    }
+
+    bool IsSaved() {
+        if(savePath == "")  return false;
+        else                return true;
+    }
+
+    void SaveInstrument(const std::string &path) {
+        savePath = path;
     }
 };
 
@@ -205,6 +249,12 @@ struct TInstrumentsCollection {
         void SetCurrentInstrument(int newInstrument) {
             currentInstrument = newInstrument;
         }
+
+        void SaveInstrument(const std::string &path, int idx) {
+            if(idx >= 0 && idx < nInstruments) {
+                collection[idx].SaveInstrument(path);
+            }
+        }
 };
 
 
@@ -217,17 +267,25 @@ void PrintInstrumentEditor();
 void PrintPatternsGrid();
 void PrintWorkingGrid();
 void ReadKeyboard();
+void CheckInputPath();
+void CheckErrors();
 
 ImGuiIO&    io = ImGui::GetIO();
-struct      ayumi ay_emu;
+//struct      ayumi ay_emu;
+
+// LibAYEmu::AY    ay_emu;
 
 TPatternsCollection     patterns;
 TInstrumentsCollection  instruments;
 
 bool error = false;
-std::string errorMsg = "Error ini";
+std::string errorMsg = "";
+
+
+//////////////////////////////
 //////////////////////////////
 //      MAIN FUNCTION       //
+//////////////////////////////
 //////////////////////////////
 int main() {
     sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
@@ -240,7 +298,8 @@ int main() {
     sf::Clock deltaClock;
 
     // AYUMI emulator
-    ayumi_configure(&ay_emu, true, 2000000, 44100); // 3,3 MHz
+    // ayumi_configure(&ay_emu, true, 2000000, 44100); // 3,3 MHz
+
 
 
     while (window.isOpen()) {
@@ -259,17 +318,9 @@ int main() {
         PrintPatternsGrid();
         PrintWorkingGrid();
 
-        // Show errors modal popup
-        if(error) {
-            ImGui::OpenPopup("Error");
-        }
-        if (ImGui::BeginPopupModal("Error", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
-            ImGui::Text(errorMsg.c_str());
-            ImGui::Separator();
+        CheckInputPath();
+        CheckErrors();
 
-            if (ImGui::Button("OK", ImVec2(120,0))) { ImGui::CloseCurrentPopup(); error = false; }
-            ImGui::EndPopup();
-        }
 
         window.clear();
         ImGui::SFML::Render(window);
@@ -279,6 +330,40 @@ int main() {
     ImGui::SFML::Shutdown();
 }
 
+void CheckInputPath() {
+    if(requestPath) {
+        ImGui::OpenPopup(pathAction.c_str());
+    }
+    // User saves or loads some file
+    if (ImGui::BeginPopupModal(pathAction.c_str(), NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Insert your path");
+        ImGui::Separator();
+        ImGui::InputText("Path##OutputPath", pathBuffer, IM_ARRAYSIZE(pathBuffer));
+
+        if (ImGui::Button("OK", ImVec2(120,0))) {
+            ImGui::CloseCurrentPopup();
+            requestPath = false;
+            instruments.SaveInstrument(std::string(pathBuffer), targetInstr);
+        }
+
+        ImGui::EndPopup();
+    }
+}
+
+void CheckErrors() {
+    
+    if(error) {
+        ImGui::OpenPopup("Error");
+    }
+    // Show errors modal popup
+    if (ImGui::BeginPopupModal("Error", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text(errorMsg.c_str());
+        ImGui::Separator();
+
+        if (ImGui::Button("OK", ImVec2(120,0))) { ImGui::CloseCurrentPopup(); error = false; }
+        ImGui::EndPopup();
+    }
+}
 
 //////////////////////////////
 // FUNCTIONS IMPLEMENTATION //
@@ -353,29 +438,8 @@ void PrintInstrumentsWorkspace() {
     ImGui::Separator();
 }
 
-// struct TInstrument {
-//     int     ID;
-//     char    *name;
-//     bool    repeat;
-//     int     lastFrame;
-//     std::vector<bool>    activeFrames;
-//     std::vector<int>     volumeFrames;
-//     std::vector<int>     noiseFrames;
-// 
-//     TInstrument() {
-//         ID              = nextInstrumentID++;
-//         name            = "MyInstrument";
-//         repeat          = false;
-//         lastFrame       = 0;
-// 
-//         activeFrames    = std::vector<bool>(true,   INSTR_FRAMES_LENGTH);
-//         volumeFrames    = std::vector<int>(15,      INSTR_FRAMES_LENGTH);
-//         noiseFrames     = std::vector<int>(0,       INSTR_FRAMES_LENGTH);
-//     }
-// };
-
 #define BUTTON_MAX_HEIGTH   80
-#define BUTTON_MAX_WIDTH    20
+#define COLUMN_MAX_WIDTH    27
 #define MAX_VOLUME          15
 std::string subStr    = "";
 
@@ -383,6 +447,7 @@ float values[INSTR_FRAMES_LENGTH];
 
 void PrintInstrumentEditor() {
     TInstrument * instr = instruments.GetCurrentInstrument();
+    int lastActiveFrame = -1;
 
     static char volBuffer[INSTR_FRAMES_LENGTH*3];
     static char volBackup[INSTR_FRAMES_LENGTH*3];
@@ -391,9 +456,45 @@ void PrintInstrumentEditor() {
 
     ImGui::BeginChild("##instrumentsscrollingregion", ImVec2(1000, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
 
-    // Volume
-    ImGui::PlotHistogram("Volume##hist", values, IM_ARRAYSIZE(values), 0, NULL, 0, 15, ImVec2(BUTTON_MAX_WIDTH*INSTR_FRAMES_LENGTH,BUTTON_MAX_HEIGTH));
+    ////////////////////
+    // FIRST PARAMETERS
+    ImGui::InputText("Instrument Name", instr->name, IM_ARRAYSIZE(instr->name));
+
+    ////////
+    // LOOP
+    ImGui::Checkbox("Loop?##checkbox", &instr->repeat);
+
+    if(instr->repeat) {
+        ImGui::SliderInt("Loop begin", &instr->loopBegin, 0, instr->lastFrame);
+        ImGui::SliderInt("Loop end", &instr->loopEnd, 0, instr->lastFrame);
+    }
+
+    /////////
+    // ACTIVE
+    bool    auxBool;
+    ImGui::Text("Active frames");
+    for(int i = 0; i < INSTR_FRAMES_LENGTH; i++) {
+        auxBool = instr->activeFrames[i];
+        ImGui::Checkbox(("##checkbox" + std::to_string(i)).c_str(), &auxBool);
+        instr->activeFrames[i] = auxBool;
+
+        if(auxBool) {
+            lastActiveFrame = i;
+        }
+
+        if(i < INSTR_FRAMES_LENGTH - 1)
+            ImGui::SameLine();
+    }
+
+    instr->lastFrame = lastActiveFrame;
+
+
+    /////////
+    // VOLUME
+    ImGui::PlotHistogram("Volume##hist", values, instr->lastFrame+1, 0, NULL, 0, 15, ImVec2(COLUMN_MAX_WIDTH*(instr->lastFrame+1),BUTTON_MAX_HEIGTH));
+    ImGui::PushItemWidth(COLUMN_MAX_WIDTH*(instr->lastFrame+1));
     if(ImGui::InputText("##volumeinput", volBuffer, IM_ARRAYSIZE(volBuffer))) {
+        ImGui::PopItemWidth();
         std::string strBuffer = volBuffer;
         std::istringstream iss(strBuffer);
 
@@ -417,15 +518,21 @@ void PrintInstrumentEditor() {
 
         for(int i = 0; i < INSTR_FRAMES_LENGTH*3; i++)
             volBackup[i] = volBuffer[i];
+    } else {
+        ImGui::PopItemWidth();
     }
 
+    /////////
+    // NOISE
     static char noiseBuffer[INSTR_FRAMES_LENGTH*3];
     static char noiseBackup[INSTR_FRAMES_LENGTH*3];
     for(int i = 0; i < INSTR_FRAMES_LENGTH; i++)
         values[i] = (float)instr->noiseFrames[i];
 
-    ImGui::PlotHistogram("Noise##hist", values, IM_ARRAYSIZE(values), 0, NULL, 0, 15, ImVec2(BUTTON_MAX_WIDTH*INSTR_FRAMES_LENGTH,BUTTON_MAX_HEIGTH));
+    ImGui::PlotHistogram("Noise##hist", values, instr->lastFrame+1, 0, NULL, 0, 15, ImVec2(COLUMN_MAX_WIDTH*(instr->lastFrame+1),BUTTON_MAX_HEIGTH));
+    ImGui::PushItemWidth(COLUMN_MAX_WIDTH*(instr->lastFrame+1));
     if(ImGui::InputText("##noiseinput", noiseBuffer, IM_ARRAYSIZE(noiseBuffer))) {
+        ImGui::PopItemWidth();
         std::string strBuffer = noiseBuffer;
         std::istringstream iss(strBuffer);
 
@@ -450,6 +557,8 @@ void PrintInstrumentEditor() {
 
         for(int i = 0; i < INSTR_FRAMES_LENGTH*3; i++)
             noiseBackup[i] = noiseBuffer[i];
+    } else {
+        ImGui::PopItemWidth();
     }
 
     ImGui::EndChild();
@@ -484,6 +593,11 @@ void PrintInstrumentsGrid() {
         std::string instrName   = "" + std::to_string(instr->ID) + " - " + instr->name;
         if(ImGui::SmallButton(instrName.c_str())) {
             instruments.SetCurrentInstrument(i);
+        }
+        ImGui::SameLine();
+        
+        if(ImGui::SmallButton(("Save##I" + std::to_string(instr->ID)).c_str())) {
+            instruments.GetInstrument(i)->SaveAs();
         }
         ImGui::SameLine();
         
@@ -573,11 +687,11 @@ void ReadKeyboard() {
     }
 
     if(pressed) {
-        ayumi_set_pan(&ay_emu, CHANNEL_A, 0.5, true);
-        ayumi_set_mixer(&ay_emu, CHANNEL_A, false, true, false);
-        ayumi_set_volume(&ay_emu, CHANNEL_A, 15);
-        ayumi_set_tone(&ay_emu, CHANNEL_A, period);
-        ayumi_process(&ay_emu);
+        // ayumi_set_pan(&ay_emu, CHANNEL_A, 0.5, true);
+        // ayumi_set_mixer(&ay_emu, CHANNEL_A, false, true, false);
+        // ayumi_set_volume(&ay_emu, CHANNEL_A, 15);
+        // ayumi_set_tone(&ay_emu, CHANNEL_A, period);
+        // ayumi_process(&ay_emu);
     }
 }
 
